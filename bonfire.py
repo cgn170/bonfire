@@ -1,13 +1,23 @@
 #!/usr/bin/env python
-
 """
-Copyright (c) 2019 Carlos Noguera (cgn170)
-See the file 'LICENSE' for copying permission
+Usage: bonfire.py [OPTIONS] COMMAND
+Arguments:
+  OPTIONS   - Options to run the framework
+  COMMAND   - Command to execute
+Options:
+  -h --help  - Shows this message
+  -v         - Verbose mode
+  --config   - Configuration file path
+Commands:
+  init       - Create configuration files and directories
+  deploy     - Deploy IT Operations stack
+  destroy    - Remove all configurations and stack created
 """
 
 try:
     import sys
     import warnings
+    from docopt import docopt
 
     warnings.filterwarnings(action="ignore", message=".* it was already imported", category=UserWarning)
     warnings.filterwarnings(action="ignore", category=DeprecationWarning)
@@ -17,14 +27,15 @@ except KeyboardInterrupt:
 
 
 # Everything starts here
-def main():
-
+def main(arg):
+    print(arg)
 
 
 # Init main
 if __name__ == "__main__":
     try:
-        main()
+        arguments = docopt(__doc__)
+        main(arguments)
     except KeyboardInterrupt:
         exit(0)
 else:
