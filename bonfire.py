@@ -7,7 +7,6 @@ See the file 'LICENSE' for copying permission
 
 try:
     import sys
-
     import warnings
 
     warnings.filterwarnings(action="ignore", message=".* it was already imported", category=UserWarning)
@@ -19,7 +18,7 @@ except KeyboardInterrupt:
 
 # Everything starts here
 def main():
-    print("Hey!")
+
 
 
 # Init main
