@@ -1,3 +1,4 @@
 # Dependencies for the framework
 docopt
 configparser
+PyYAML

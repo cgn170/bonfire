@@ -1,41 +1,63 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-Usage: bonfire.py [OPTIONS] COMMAND
-Arguments:
-  OPTIONS   - Options to run the framework
-  COMMAND   - Command to execute
+Usage:
+    bonfire.py [Options] <Command>
+    bonfire.py -h | --help | --version
 Options:
   -h --help  - Shows this message
   -v         - Verbose mode
+  -f         - Force command actions
   --config   - Configuration file path
-Commands:
+  --version  - Version
+Command:
   init       - Create configuration files and directories
   deploy     - Deploy IT Operations stack
-  destroy    - Remove all configurations and stack created
+  remove     - Remove all configurations and stack created
+  plugins    - Show a list of available plugins
 """
-
 try:
+    import os
     import sys
     import warnings
     from docopt import docopt
+    import lib.kick_off
 
     warnings.filterwarnings(action="ignore", message=".* it was already imported", category=UserWarning)
     warnings.filterwarnings(action="ignore", category=DeprecationWarning)
 
 except KeyboardInterrupt:
     errMsg = "user aborted"
+except ImportError as e:
+    raise Exception("Error importing library: {}".format(e))
 
 
 # Everything starts here
-def main(arg):
-    print(arg)
+def main(args):
+
+    path = os.getcwd()
+    # Check command value
+    command = args['<Command>']
+
+    if command == "init":
+        print("init")
+        lib.kick_off.create_configuration_folders(overwrite=True)
+
+        lib.kick_off.create_global_configuration_file(overwrite=True)
+    elif command == "deploy":
+        print("deploy")
+    elif command == "remove":
+        print("remove")
+    else:
+        print("command not found")
 
 
 # Init main
 if __name__ == "__main__":
     try:
-        arguments = docopt(__doc__)
-        main(arguments)
+        args = docopt(__doc__, version=0.1)
+        main(args)
     except KeyboardInterrupt:
         exit(0)
 else:
