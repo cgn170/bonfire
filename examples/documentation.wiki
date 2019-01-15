@@ -1,0 +1,7 @@
+Documentation Example
+
+Resolution: do something
+
+
+Important Note: DO NOT PANIC!
+

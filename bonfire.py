@@ -22,7 +22,8 @@ try:
     import sys
     import warnings
     from docopt import docopt
-    import lib.kick_off
+    from lib import KickOff
+    from lib import Settings
 
     warnings.filterwarnings(action="ignore", message=".* it was already imported", category=UserWarning)
     warnings.filterwarnings(action="ignore", category=DeprecationWarning)
@@ -39,12 +40,11 @@ def main(args):
     path = os.getcwd()
     # Check command value
     command = args['<Command>']
-
+    kickoff = KickOff.KickOff()
     if command == "init":
         print("init")
-        lib.kick_off.create_configuration_folders(overwrite=True)
+        kickoff.create_started_files()
 
-        lib.kick_off.create_global_configuration_file(overwrite=True)
     elif command == "deploy":
         print("deploy")
     elif command == "remove":
