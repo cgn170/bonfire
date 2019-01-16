@@ -1,7 +1,7 @@
 # Category of the system
 LATAM:
   # Service to use for monitoring
-  Cloudwatch:
+  AWS:
     # Account name defined in the credentials.yml file
     Account: latam
       # SNS option for the configuration of the alerts
@@ -25,6 +25,7 @@ LATAM:
           # Description or Desc
           Desc: Trigger a notification alert if any instance is unhealthy on the load balancer.
           # WorkInstruction or WI
+          # Url with the information to solve the issue
           WI: https://www.google.com
           # Comparator value, could be <, <=, >, >=, =
           Comparator: >

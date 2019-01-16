@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
 Copyright (c) 2019 Carlos Noguera (cgn170)
@@ -20,17 +21,13 @@ class KickOff:
         try:
             path = self.settings.CONFIGURATION_FILE_PATH
             exists = os.path.exists(path)
-            if not exists:
-                with open(path, 'w') as output:
-                    yaml.dump(self.settings.GLOBAL_SETTINGS,
-                              output, default_flow_style=False)
             if exists:
                 print("[Error] init file exist: {}"
                       "\nIf you want to overwrite the global configuration file please run again with the -f option"
                       .format(path))
-            if overwrite:
-                # Must overwrite the file
-                print("Overwriten")
+            if not exists or overwrite:
+                # Copy example file
+                copy(self.settings.CONFIGURATION_FILE_EXAMPLE, self.settings.CONFIGURATION_PATH)
 
         except yaml.YAMLError as e:
             raise Exception("YAML error: {}".format(e))

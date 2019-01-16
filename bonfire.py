@@ -24,9 +24,14 @@ try:
     from docopt import docopt
     from lib import KickOff
     from lib import Settings
+    from lib import Deployment
+    import logging
 
     warnings.filterwarnings(action="ignore", message=".* it was already imported", category=UserWarning)
     warnings.filterwarnings(action="ignore", category=DeprecationWarning)
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
 except KeyboardInterrupt:
     errMsg = "user aborted"
@@ -41,6 +46,7 @@ def main(args):
     # Check command value
     command = args['<Command>']
     kickoff = KickOff.KickOff()
+    deployment = Deployment.Deployment()
     if command == "init":
         print("init")
         kickoff.create_started_files()
@@ -49,6 +55,9 @@ def main(args):
         print("deploy")
     elif command == "remove":
         print("remove")
+    elif command == "plugins":
+        print("plugins")
+        print("Plugin list: {}".format(", ".join(deployment.get_list_plugins())))
     else:
         print("command not found")
 

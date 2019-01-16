@@ -1,0 +1,18 @@
+# Welcome to Bonfire!
+#
+# This file is the main config file of your deployment configuration.
+# It's has default values, you can always change or add more options.
+#
+#
+
+Config:
+  # you can overwrite defaults here
+  #  Env: dev
+  #
+  Documentation_folder: "Documentation"
+  #
+  Upload_documentation: False
+  #
+  Alerts_folder: "Alerts"
+  #
+  Credentials_folder: "Credentials"
