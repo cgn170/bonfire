@@ -47,7 +47,7 @@ LATAM:
           Sub: LoadBalancer
           Env: Prod
           Desc: Trigger a notification alert if any instance is unhealthy on the load balancer.
-          WI: http://confluence.com/wkzy
+          WI: documentation/WI_unhealhtyhostcount_AWS.wiki
           Comparator: >
           Threshold: 0
           EvaluationPeriods: 2

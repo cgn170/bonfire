@@ -21,7 +21,7 @@ CONFIGURATION_FOLDERS = [
     },
     {
         "folder": os.path.join(CONFIGURATION_PATH, "Documentation"),
-        "example": os.path.join(EXAMPLES_PATH, "documentation.wiki")
+        "example": os.path.join(EXAMPLES_PATH, "WI_unhealthyhostcount_AWS.wiki")
     },
     {
         "folder": os.path.join(CONFIGURATION_PATH, "Credentials"),
