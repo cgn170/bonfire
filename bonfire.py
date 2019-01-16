@@ -42,7 +42,6 @@ except ImportError as e:
 # Everything starts here
 def main(args):
 
-    path = os.getcwd()
     # Check command value
     command = args['<Command>']
     kickoff = KickOff.KickOff()
