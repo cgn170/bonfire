@@ -32,7 +32,7 @@ class Deployment:
             return os.path.join(Settings.PLUGINS_PATH, plugin_name)
         return None
 
-    # Process plugin process with alert information
+    # Process plugin alert information
     def process_plugin(self, plugin_name, alert_content):
         # Check if the alert_content is the correct with the plugin
         if type(alert_content) is not dict:
