@@ -3,7 +3,7 @@
 
 """
 Usage:
-    bonfire.py [Options] <Command>
+    bonfire.py [-vf] [--config path] <Command>
     bonfire.py -h | --help | --version
 Options:
   -h --help  - Shows this message
@@ -21,21 +21,20 @@ try:
     import os
     import sys
     import warnings
+    from lib import Menu
+    from lib import SetupLogger
     from docopt import docopt
-    from lib import KickOff
-    from lib import Settings
-    from lib import Deployment
     import logging
 
     warnings.filterwarnings(action="ignore", message=".* it was already imported", category=UserWarning)
     warnings.filterwarnings(action="ignore", category=DeprecationWarning)
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-
 except KeyboardInterrupt:
     errMsg = "user aborted"
 except ImportError as e:
+
+    SetupLogger.logger.error("Error importing library: {}".format(e))
+
     raise Exception("Error importing library: {}".format(e))
 
 
@@ -44,21 +43,14 @@ def main(args):
 
     # Check command value
     command = args['<Command>']
-    kickoff = KickOff.KickOff()
-    deployment = Deployment.Deployment()
-    if command == "init":
-        print("init")
-        kickoff.create_started_files()
+    menu = Menu.Menu()
 
-    elif command == "deploy":
-        print("deploy")
-    elif command == "remove":
-        print("remove")
-    elif command == "plugins":
-        print("plugins")
-        print("Plugin list: {}".format(", ".join(deployment.get_list_plugins())))
-    else:
-        print("command not found")
+    # Force option
+    overwrite = args['-f']
+
+    # Process command
+    if command:
+        menu.process_command(command, overwrite)
 
 
 # Init main

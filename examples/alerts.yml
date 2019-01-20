@@ -18,8 +18,8 @@ LATAM:
         Alert1:
           # Name
           Name: UnHealthyHostCount
-          # Subcategory or Sub: is not obligatory
-          Sub: LoadBalancer
+          # Subcategory: is optional
+          Subcategory: LoadBalancer
           # Environment or Env
           Env: Prod
           # Description or Desc
@@ -45,7 +45,7 @@ LATAM:
               Value: XX-YY-ZZ # also could be -> !ImportValue Exported-value-in-cloudformation
         Alert2:
           Name: UnHealthyHostCount
-          Sub: LoadBalancer
+          Subcategory: LoadBalancer
           Env: Prod
           Desc: Trigger a notification alert if any instance is unhealthy on the load balancer.
           WI: documentation/WI_unhealhtyhostcount_AWS.wiki

@@ -6,8 +6,8 @@ Copyright (c) 2019 Carlos Noguera (cgn170)
 See the file 'LICENSE' for copying permission
 """
 import os
-import Settings
-from SetupLogger import logger
+from lib import Settings
+from lib import SetupLogger
 
 
 class Deployment:
