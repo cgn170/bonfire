@@ -2,7 +2,7 @@
 LATAM:
   # Service to use for monitoring
   AWS:
-    # Account name defined in the credentials.yml file
+    # Account name defined in the passwords.yml file
     Account: latam
       # SNS option for the configuration of the alerts
       SNS:

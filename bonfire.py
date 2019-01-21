@@ -3,18 +3,18 @@
 
 """
 Usage:
-    bonfire.py [-vf] [--config path] <Command>
+    bonfire.py [-f] [-v level] [--config path] <Command>
     bonfire.py -h | --help | --version
 Options:
-  -h --help  - Shows this message
-  -v         - Verbose mode
+  -h --help  - Show this message
+  -v         - Verbose mode level [ 1(info), 2(warning), 3(debug)]
   -f         - Force command actions
   --config   - Configuration file path
   --version  - Version
 Command:
   init       - Create configuration files and directories
-  deploy     - Deploy IT Operations stack
-  remove     - Remove all configurations and stack created
+  deploy     - Deploy monitoring stack
+  remove     - Remove all configurations and stack deployed
   plugins    - Show a list of available plugins
 """
 try:
@@ -22,6 +22,7 @@ try:
     import sys
     import warnings
     from lib import Menu
+    from lib import Settings
     from lib import SetupLogger
     from docopt import docopt
     import logging
@@ -30,7 +31,7 @@ try:
     warnings.filterwarnings(action="ignore", category=DeprecationWarning)
 
 except KeyboardInterrupt:
-    errMsg = "user aborted"
+    SetupLogger.logger.error("User aborted")
 except ImportError as e:
 
     SetupLogger.logger.error("Error importing library: {}".format(e))
@@ -48,9 +49,19 @@ def main(args):
     # Force option
     overwrite = args['-f']
 
+    # Verbose level
+    verbose = args['-v']
+
+    # Configuration file
+
+    if args['--config']:
+        config_file_path = args['--config']
+    else:
+        config_file_path = Settings.CONFIGURATION_FILE_PATH
+
     # Process command
     if command:
-        menu.process_command(command, overwrite)
+        menu.process_command(command, overwrite=overwrite, config_file_path=config_file_path)
 
 
 # Init main
