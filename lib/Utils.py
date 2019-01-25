@@ -19,12 +19,14 @@ def read_yml_file(file_path):
 
     except yaml.YAMLError as e:
         SetupLogger.logger.error("Could parse file '{0}', error: {1}".format(file_path, e))
+    except IOError as e:
+        SetupLogger.logger.error("File error {}".format(e))
     # If the parsed was not possible returns None
     return None
 
 
 # List of yml files in a directory
-def get_list_yml_file_directory(directory_path):
+def list_yml_files_in_directory(directory_path):
     filenames = os.listdir(directory_path)
     file_list = []
     for filename in filenames:
@@ -32,6 +34,6 @@ def get_list_yml_file_directory(directory_path):
         if filename.endswith("yml"):
             SetupLogger.logger.debug("YML file found: {}"
                                      .format(os.path.join(directory_path, filename)))
-            file_list.append(filename)
+            file_list.append(os.path.join(directory_path, filename))
 
     return file_list

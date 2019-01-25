@@ -37,4 +37,5 @@ class Menu:
             SetupLogger.logger.info("Available Plugins: {}".format(", ".join(deployment.get_list_plugins())))
 
         else:
-            SetupLogger.logger.error("Command '{}' not found".format(command))
+            SetupLogger.logger.error("Command '{}' not found, exiting ...".format(command))
+            exit(1)
