@@ -9,6 +9,8 @@ from lib import KickOff
 from lib import Deployment
 from lib import SetupLogger
 from lib import Settings
+import sys
+sys.path.append("..")
 
 class Menu:
 

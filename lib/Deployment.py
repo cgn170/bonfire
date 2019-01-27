@@ -7,26 +7,43 @@ See the file 'LICENSE' for copying permission
 """
 
 import os
-import importlib
 from lib import Settings
 from lib import SetupLogger
 from lib import Utils
+import importlib
 
 
 class Deployment:
 
     def __init__(self):
+
         pass
+
+    # Load all plugins in objects
+    def load_plugins(self):
+
+        # Load all plugins, i should improve this ....
+        importlib.import_module('lib.plugins')
+        modules = {}
+        plugins = self.get_list_plugins()
+        for plugin, path in plugins.items():
+            modules[plugin] = importlib.import_module("lib.plugins."+plugin, package="lib.plugins")
+            SetupLogger.logger.debug("'{0}' plugin loaded successfully".format(plugin))
+        return modules
 
     # Get list of plugin
     def get_list_plugins(self):
+
         filenames = os.listdir(Settings.PLUGINS_PATH)
         plugin_list = {}
         for filename in filenames:
-            if os.path.isdir(os.path.join(Settings.PLUGINS_PATH, filename)):
-                SetupLogger.logger.debug("Plugin found: {}"
-                                         .format(os.path.join(Settings.PLUGINS_PATH, filename)))
-                plugin_list[filename] = os.path.join(Settings.PLUGINS_PATH, filename)
+            if os.path.isfile(os.path.join(Settings.PLUGINS_PATH, filename)):
+                if filename.endswith(".py") and not filename.startswith("__"):
+                    plugin_list[filename.replace(".py", "")] = os.path.join(Settings.PLUGINS_PATH, filename)
+            # if os.path.isdir(os.path.join(Settings.PLUGINS_PATH, filename)):
+                # SetupLogger.logger.debug("Plugin found: {}"
+                #                         .format(os.path.join(Settings.PLUGINS_PATH, filename)))
+            #    plugin_list[filename] = os.path.join(Settings.PLUGINS_PATH, filename)
 
         return plugin_list
 
@@ -35,13 +52,13 @@ class Deployment:
         if plugin_name in self.get_list_plugins():
             SetupLogger.logger.debug("Plugin '{0}' was found in {1}".format(plugin_name, Settings.PLUGINS_PATH))
             return os.path.join(Settings.PLUGINS_PATH, plugin_name)
-        SetupLogger.logger.debug("Plugin '{0}' was not found {1}".format(plugin_name, Settings.PLUGINS_PATH))
+        SetupLogger.logger.debug("Plugin '{0}' was not found in {1}".format(plugin_name, Settings.PLUGINS_PATH))
         return None
 
     ##################################
     # Import and process plugin for all alert files
     ##################################
-    def process_plugin(self, plugin_name, list_alerts_file, password_file):
+    def process_plugin(self, plugin_name, list_alerts_file, plugin_modules, password_file_path):
 
         SetupLogger.logger.debug("Processing plugin: {}".format(plugin_name))
 
@@ -56,30 +73,26 @@ class Deployment:
                                      .format(plugin_name))
             return None
 
-        # Get information about what plugins are available in the folder
-        plugins_available = self.get_list_plugins()
+        #####################################
+        # We call external plugin
+
+        plugin_modules[plugin_name].main(list_alerts_file, password_file_path)
+
+
 
         ##########################################
         # Check if the plugin exist and process it
         ##########################################
 
-        if plugin_name.lower() in [plugin.lower() for plugin, path in plugins_available.items()]:
+        SetupLogger.logger.debug("Loading plugin ...")
 
-            print("Do something with the plugin")
+        # print("PATH: {}".format(plugins_available.get(plugin_name)))
 
-            # plugin_module.Main("aaaa","bbb")
-
-
-
-            from plugins import AWS
+        # plugin_module.Main("aaaa","bbb")
+        # print(self.plugins[plugin_name])
 
 
 
-
-
-        else:
-            SetupLogger.logger.error("Plugin '{}' was not found".format(plugin_name))
-            return None
 
     # Here is the logic to deploy
     def process_deployment(self, config_file_path):
@@ -135,6 +148,10 @@ class Deployment:
         # Get available plugins
         # plugin_list = self.get_list_plugins()
 
+
+        # print("FINAL: {}".format(plugins))
+        # plugins['AWS'].HOLA()
+
         # if len(plugin_list) > 0:
         #    print("List of plugins: {}".format(plugin_list))
 
@@ -142,16 +159,27 @@ class Deployment:
         alerts_list_file = Utils.list_yml_files_in_directory(alerts_dir)
 
         if len(alerts_list_file) > 0:
-            print("List of alerts file: {}".format(alerts_list_file))
+            print("Number of alerts file found : {}".format(len(alerts_list_file)))
+        else:
+            print("No alerts file found, exiting ...")
+            exit(1)
 
+        # Check documentation
         documentation_list_file = Utils.list_yml_files_in_directory(documentation_dir)
 
         if len(documentation_list_file):
-            print("List of documentation file: {}".format(documentation_list_file))
-        print("Password file: {}".format(passwords_file))
+            print("Number of documentation file found: {}".format(len(documentation_list_file)))
+        else:
+            print("No documentation file found, is recommended to use some documentation for each alert "
+                  "(Optional) ...")
 
         ######################
         # Process each plugin
         ######################
-        for plugin in ['AWS']: # Only process AWS
-            self.process_plugin(plugin, alerts_list_file, passwords_file)
+
+        # Get information about what plugins are available in the folder
+        plugins_available = self.get_list_plugins()
+        plugins_modules = self.load_plugins()
+
+        for plugin in plugins_available:
+            self.process_plugin(plugin, alerts_list_file, plugins_modules, passwords_file)
