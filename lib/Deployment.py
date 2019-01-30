@@ -84,7 +84,7 @@ class Deployment:
         # Check if the plugin exist and process it
         ##########################################
 
-        SetupLogger.logger.debug("Loading plugin ...")
+        SetupLogger.logger.debug("Finished plugin execution")
 
         # print("PATH: {}".format(plugins_available.get(plugin_name)))
 
@@ -179,6 +179,8 @@ class Deployment:
 
         # Get information about what plugins are available in the folder
         plugins_available = self.get_list_plugins()
+
+        SetupLogger.logger.debug("Loading plugins ...")
         plugins_modules = self.load_plugins()
 
         for plugin in plugins_available:

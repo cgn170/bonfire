@@ -7,6 +7,7 @@ See the file 'LICENSE' for copying permission
 """
 import os
 import yaml
+import random
 from lib import SetupLogger
 
 
@@ -18,7 +19,7 @@ def read_yml_file(file_path):
         return parsed_dict
 
     except yaml.YAMLError as e:
-        SetupLogger.logger.error("Could parse file '{0}', error: {1}".format(file_path, e))
+        SetupLogger.logger.error("Could not parse file '{0}', error: {1}".format(file_path, e))
     except IOError as e:
         SetupLogger.logger.error("File error {}".format(e))
     # If the parsed was not possible returns None
@@ -37,3 +38,15 @@ def list_yml_files_in_directory(directory_path):
             file_list.append(os.path.join(directory_path, filename))
 
     return file_list
+
+
+# Generate word with random values
+def generate_random_word(number_letters=3):
+    if number_letters > 0:
+        base = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+        random_word = ""
+        for i in range(0, number_letters, 1):
+            random_word += base[random.randint(0, 58)]
+        return random_word
+    else:
+        return None

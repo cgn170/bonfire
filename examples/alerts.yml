@@ -1,63 +1,46 @@
-# Category of the system
-LATAM:
-  # Service to use for monitoring
-  AWS:
-    # Account name defined in the passwords.yml file
-    Account: latam
-      # SNS option for the configuration of the alerts
-      SNS:
-        # Topic name
-        - Support-team-services:
-            # Subscriptions, you can put N number of them
-            - Protocol: Https
+LATAM: # Category of the stack, this could be anything but must be a word
+  AWS: # Service to use for monitoring
+      Account: latam # Account name defined in the passwords.yml file
+      SNS: # SNS option for the configuration of the alerts
+        - Support-team-services: # Topic name
+            - Protocol: Https # Subscriptions, you can put N number of them
               Endpoint: https://events.pagerduty.com/integration/
             - Protocol: Email
               Endpoint: operations-team-email@bigcompany.com
-      Alerts:
-        # You can use any name for the alert, is not necessary for the deploy
-        Alert1:
-          # Name
-          Name: UnHealthyHostCount
-          # Subcategory: is optional
-          Subcategory: LoadBalancer
-          # Environment or Env
-          Env: Prod
-          # Description or Desc
-          Desc: Trigger a notification alert if any instance is unhealthy on the load balancer.
-          # WorkInstruction or WI
-          # Url with the information to solve the issue
-          WI: https://www.google.com
-          # Comparator value, could be <, <=, >, >=, =
-          Comparator: >
-          # Threshold value
-          Threshold: 0
-          # Evaluation periods for the alert
-          EvaluationPeriods: 2
-          # Period in seconds
-          Period: 60
-          # Statistic type
-          Statistic: Average
-          # Alert namespace
-          Namespace: AWS/ELB
-          # Dimensions, this is to
-          Dimensions:
+      Cloudwatch:
+        Alert1: # You can use any name for the alert, is not necessary for the deploy
+          MetricName: UnHealthyHostCount # MetricName to monitor
+          Subcategory: LoadBalancer # Subcategory: is optional
+          Env: Prod # Environment
+          Desc: Trigger a notification alert if any instance is unhealthy on the load balancer. # Alert Description
+          WI: https://www.google.com # URL for the WorkInstruction with the instructions to solve the issue
+          Severity: Critical # Define alert severity, could be Normal, Warning, Critical
+          Comparator: ">=" # Comparator value, could be <, <=, >, >=, must use ""
+          Threshold: 2 # Threshold value
+          EvaluationPeriods: 5 # Evaluation periods for the alert
+          Period: 60 # Period in seconds
+          Statistic: Average # Statistic type
+          Namespace: AWS/ELB # Alert namespace
+          TreatMissingData: missing # Optional, could be missing, notBreaching, breaching, ignore. default value: missing
+          Dimensions: # Dimensions, this is needed to create the alert for more information visit https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cw-dimension.html
             - Name: LoadBalancerName
               Value: XX-YY-ZZ # also could be -> !ImportValue Exported-value-in-cloudformation
         Alert2:
-          Name: UnHealthyHostCount
           Subcategory: LoadBalancer
           Env: Prod
           Desc: Trigger a notification alert if any instance is unhealthy on the load balancer.
           WI: documentation/WI_unhealhtyhostcount_AWS.wiki
-          Comparator: >
-          Threshold: 0
-          EvaluationPeriods: 2
+          MetricName: UnHealthyHostCount
+          Severity: Warning
+          Comparator: ">="
+          Threshold: 1
+          EvaluationPeriods: 5
           Period: 60
           Statistic: Average
           Namespace: AWS/ELB
           Dimensions:
             - Name: LoadBalancerName
-              Value: !ImportValue LoadBalancerNameExported
+              Value: "!ImportValue LoadBalancerNameExported" # Must use ""
 
 
 
