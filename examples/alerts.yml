@@ -25,6 +25,7 @@ LATAM: # Category of the stack, this could be anything but must be a word
           Dimensions: # Dimensions, this is needed to create the alert for more information visit https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cw-dimension.html
             - Name: LoadBalancerName
               Value: XX-YY-ZZ # also could be -> !ImportValue Exported-value-in-cloudformation
+          Runbook: # This is not supported yet
         Alert2:
           Subcategory: LoadBalancer
           Env: Prod

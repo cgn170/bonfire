@@ -18,12 +18,8 @@ from lib import SetupLogger
 def check_sns_topic(topic_arn_list, category):
 
     # Dict of the topic resources
-
     topics = []
     topic_resources = []
-
-    topic_counter = 0
-    suscription_counter = 0
 
     for topic_arn in topic_arn_list:
 
@@ -41,58 +37,45 @@ def check_sns_topic(topic_arn_list, category):
         # If arn resource exist query
         # logger.info('Checking if the SNS topic exist: {}'.format(topic_arn))
         if topic_arn.startswith('arn'):
-            """
-            try:
-                response = client.get_topic_attributes(
-                    TopicArn=topic_arn
-                )
-                logger.info('SNS topic "{}" exist! and can be use it'.format(topic_arn))
-                SNS_TOPIC_REF = topic_arn
-            except Exception as e:
-                raise Exception('Error querying SNS Topic: {}'.format(e))
-            """
-            SNS_TOPIC_REF = topic_arn
+            _sns_topic_ref = topic_arn
         else:
             # logger.info('SNS topic "{}" doesn\'t exist and will be create'.format(topic_arn))
-            SNS_TOPIC_NAME = "{0}-SNSTOPIC-{2}".format(category, uniq_value_topic)
-            topic_counter += 1
+            _sns_topic_name = "{0}-sns-topic-{1}".format(category, Utils.generate_random_word(5))
             # Update topic name with the correct
-            SNS_TOPIC_NAME_REF = SNS_TOPIC_NAME.replace("-", "")
-            SNS_TOPIC_REF = "!Ref {}".format(SNS_TOPIC_NAME_REF)
+            _sns_topic_name_ref = _sns_topic_name.replace("-", "")
+            _sns_topic_ref = "!Ref {}".format(_sns_topic_name_ref)
 
             sns_topic_resource = {
-                SNS_TOPIC_NAME_REF: {
+                _sns_topic_name_ref: {
                     "Type": "AWS::SNS::Topic",
                     "Properties": {
                         "DisplayName": topic_arn,
-                        "TopicName": SNS_TOPIC_NAME
+                        "TopicName": _sns_topic_name
                     }
                 }
             }
 
             # Add resources
             topic_resources.append(sns_topic_resource)
-            logger.info('SNS Topic {} added to Cloudformation Template.'.format(SNS_TOPIC_NAME))
-
+            SetupLogger.logger.debug('SNS Topic {} added to Cloudformation Template.'.format(_sns_topic_name))
         # Add topic ref
-        topics.append(SNS_TOPIC_REF)
+        topics.append(_sns_topic_ref)
 
         # Check if any suscriptions exist
         if subscriptions is not None:
             for subscription in subscriptions:
-                SUSCRIPTION_NAME = "{0}-{1}-SUSCRIPTION-{2}".format(aws_account, category, uniq_value_suscription)
-                uniq_value_suscription += 1
+                _suscription_name = "{0}-suscription-{1}".format(category, Utils.generate_random_word(5))
 
                 # Update topic name with the correct
-                SUBSCRIPTION_NAME_REF = SUSCRIPTION_NAME.replace("-", "")
+                _suscription_name_ref = _suscription_name.replace("-", "")
 
                 subscription_resource = {
-                    SUBSCRIPTION_NAME_REF: {
+                    _suscription_name_ref: {
                         "Type": "AWS::SNS::Subscription",
                         "Properties": {
                             "Endpoint": subscription["Endpoint"],
                             "Protocol": subscription["Protocol"],
-                            "TopicArn": SNS_TOPIC_REF
+                            "TopicArn": _sns_topic_ref
                         }
                     }
                 }
@@ -116,11 +99,7 @@ def deploy_cloudformation_template():
 # Create cloudformation template for each alert definition file
 def create_cloudformation_template_alerts(alert_yml_data):
     print("[AWS] Creating cloudformation alerts template")
-    # Preseting Variables;
-    #    _CATEGORY = _category
-    #    _ACCOUNT = _account
-    #    _REGION = _region
-    #    CATEGORY = _category
+
     _aws_account = None
     _category = None
     _sub_category = None
@@ -165,19 +144,16 @@ def create_cloudformation_template_alerts(alert_yml_data):
             if _monitoring_system == "AWS":
                 _account = str(alert_yml_data[_category][_monitoring_system]['Account'])
 
-
                 # Add the description of the stack
 
                 stack['Description'] = "Category: {}".format(_category)
-                """
-                # Check if the SNS Topic exist
-                 SNS_TOPICS_LIST = check_sns_topic(YML_DATA[CATEGORY][MONITORING_SYSTEM]['SNS'],
-                                                  _ACCOUNT, _CATEGORY)
 
-                for sns_resource in SNS_TOPICS_LIST['resources']:
+                # Check if the SNS Topic exist
+                _sns_topic_list = check_sns_topic(alert_yml_data[_category][_monitoring_system]['SNS'],_category)
+
+                for sns_resource in _sns_topic_list['resources']:
                     for key, val in sns_resource.items():
                         stack['Resources'][key] = val
-                """
 
                 # Loop for each cloudwatch alert definition
                 for name, alert in alert_yml_data[_category][_monitoring_system]['Cloudwatch'].items():

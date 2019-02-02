@@ -46,7 +46,7 @@ def generate_random_word(number_letters=3):
         base = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
         random_word = ""
         for i in range(0, number_letters, 1):
-            random_word += base[random.randint(0, 58)]
+            random_word += base[random.randint(0, 57)]
         return random_word
     else:
         return None
