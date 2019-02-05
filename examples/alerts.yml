@@ -33,7 +33,7 @@ LATAM: # Category of the stack, this could be anything but must be a word
           WI: documentation/WI_unhealhtyhostcount_AWS.wiki
           MetricName: UnHealthyHostCount
           Severity: Warning
-          Comparator: ">="
+          Comparator: ">"
           Threshold: 1
           EvaluationPeriods: 5
           Period: 60

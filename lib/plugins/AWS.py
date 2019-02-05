@@ -12,6 +12,7 @@ configuration
 """
 from lib import Utils
 from lib import SetupLogger
+import yaml
 
 
 # Create sns topics
@@ -125,7 +126,7 @@ def create_cloudformation_template_alerts(alert_yml_data):
     # Create Header for the YML
     stack = dict(
         AWSTemplateFormatVersion='2010-09-09',
-        Description='Monitoring alert stack created by Bonfire project',
+        Description='Monitoring alert stack',
         Resources={}
     )
 
@@ -146,10 +147,10 @@ def create_cloudformation_template_alerts(alert_yml_data):
 
                 # Add the description of the stack
 
-                stack['Description'] = "Category: {}".format(_category)
+                stack['Description'] += " for {} category, created by Bonfire Project".format(_category)
 
                 # Check if the SNS Topic exist
-                _sns_topic_list = check_sns_topic(alert_yml_data[_category][_monitoring_system]['SNS'],_category)
+                _sns_topic_list = check_sns_topic(alert_yml_data[_category][_monitoring_system]['SNS'], category)
 
                 for sns_resource in _sns_topic_list['resources']:
                     for key, val in sns_resource.items():
@@ -170,10 +171,10 @@ def create_cloudformation_template_alerts(alert_yml_data):
                     _statistic = alert['Statistic']
 
                     # _ok_action = list(SNS_TOPICS_LIST['topics'])
-                    _ok_action = ""
-                    _alarm_action = ""
+                    _ok_action = list(_sns_topic_list['topics'])
+                    _alarm_action = list(_sns_topic_list['topics'])
                     _dimensions = alert['Dimensions']
-                    _insufficient_data = ""
+                    _insufficient_data = list(_sns_topic_list['topics'])
 
                     if str(alert['Comparator']) == '>':
                         _comparison_operator = 'GreaterThanThreshold'
@@ -222,7 +223,18 @@ def create_cloudformation_template_alerts(alert_yml_data):
                          }
                     SetupLogger.logger.debug(('Alarm {} added to Cloudformation Template.'
                                               .format(_alarm_name)))
-    print(stack)
+                # Create new object noalias_dumper and disable aliases by
+                # overwrite the method ignore_aliases
+                # from here
+                noalias_dumper = yaml.dumper.SafeDumper
+                noalias_dumper.ignore_aliases = lambda self, data: True
+                # Create yaml dumps in memory of the template
+                stack_yml = (yaml.dump(
+                    stack,
+                    default_flow_style=False,
+                    Dumper=noalias_dumper)).replace('\'', '')
+
+    print(stack_yml)
 
 
 def get_aws_keys(password_file_path):
