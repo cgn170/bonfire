@@ -10,10 +10,29 @@ This plugin process AWS alerts configuration files, build a custom cloudformatio
 configuration 
 
 """
+import os
 from lib import Utils
 from lib import SetupLogger
+from lib import Settings
+from lib import Utils
 import yaml
 
+
+# Write cloudformation template to file
+def write_cloudformation_stack_to_file(stack, path):
+    # Create new object noalias_dumper and disable aliases by
+    # overwrite the method ignore_aliases
+    # from here
+    noalias_dumper = yaml.dumper.SafeDumper
+    noalias_dumper.ignore_aliases = lambda self, data: True
+    # Create yaml dumps in memory of the template
+    stack_yml = (yaml.dump(
+        stack,
+        default_flow_style=False,
+        Dumper=noalias_dumper)).replace('\'', '')
+
+    with open(path, 'w') as outfile:
+        yaml.dump(stack, outfile, default_flow_style=False, Dumper=noalias_dumper)
 
 # Create sns topics
 def check_sns_topic(topic_arn_list, category):
@@ -87,16 +106,6 @@ def check_sns_topic(topic_arn_list, category):
     return {'topics': topics, 'resources': topic_resources}
 
 
-# Create cloudformation template for the alert dashboard
-def create_cloudformation_template_dashboards():
-    print("[AWS] Creating cloudformation dashboard template")
-
-
-# Deploy cloudformation stack
-def deploy_cloudformation_template():
-    print("[AWS] Deploying cloudformation ...")
-
-
 # Create cloudformation template for each alert definition file
 def create_cloudformation_template_alerts(alert_yml_data):
     print("[AWS] Creating cloudformation alerts template")
@@ -147,7 +156,7 @@ def create_cloudformation_template_alerts(alert_yml_data):
 
                 # Add the description of the stack
 
-                stack['Description'] += " for {} category, created by Bonfire Project".format(_category)
+                stack['Description'] += " for {} category, created by bonfire project".format(_category)
 
                 # Check if the SNS Topic exist
                 _sns_topic_list = check_sns_topic(alert_yml_data[_category][_monitoring_system]['SNS'], category)
@@ -223,18 +232,39 @@ def create_cloudformation_template_alerts(alert_yml_data):
                          }
                     SetupLogger.logger.debug(('Alarm {} added to Cloudformation Template.'
                                               .format(_alarm_name)))
-                # Create new object noalias_dumper and disable aliases by
-                # overwrite the method ignore_aliases
-                # from here
-                noalias_dumper = yaml.dumper.SafeDumper
-                noalias_dumper.ignore_aliases = lambda self, data: True
-                # Create yaml dumps in memory of the template
-                stack_yml = (yaml.dump(
-                    stack,
-                    default_flow_style=False,
-                    Dumper=noalias_dumper)).replace('\'', '')
 
-    print(stack_yml)
+    return stack
+
+
+# Create cloudformation template for the alert dashboard
+def create_cloudformation_template_dashboards():
+    print("[AWS] Creating cloudformation dashboard template")
+
+
+# Create cloudformation template to create bucket s3 and nested stacks
+def create_cloudformation_template_init_buckets3():
+    # Create Header for the YML
+    stack = dict(
+        AWSTemplateFormatVersion='2010-09-09',
+        Description='Bonfire project S3 bucket',
+        Resources={
+            "S3Bucket":{
+                "Type": "AWS::S3::Bucket",
+                "Properties": {
+                    "BucketName": "bonfire-bucket-{}".format(Utils.generate_random_word(10))
+                }
+            }
+        }
+    )
+
+    return stack
+
+
+
+# Deploy cloudformation stack
+def deploy_cloudformation_template():
+    print("[AWS] Deploying cloudformation ...")
+
 
 
 def get_aws_keys(password_file_path):
@@ -246,11 +276,30 @@ def main(list_alerts_file, password_file_path):
     print("Alerts Directory: {}".format(list_alerts_file))
     print("Password file path: {}".format(password_file_path))
 
+    # Check if hidden folder exist and create AWS folder inside
+    _path_deployment_plugin = os.path.join(Settings.CONFIGURATION_HIDDEN_FOLDER_DEPLOYMENT, "AWS")
+    # Create deployment folder
+    Utils.create_folder(overwrite=False, folder_path=_path_deployment_plugin)
+
+    # Create all cloudformation templates
+    # Template: Bucket S3 for configuration
+    buckets3_template = create_cloudformation_template_init_buckets3()
+
+    write_cloudformation_stack_to_file(buckets3_template,
+                                        os.path.join(_path_deployment_plugin, "init_buckets3.yml"))
+
+
+    # Deployment
+
+    # Create bucket S3 and wait until is finished
+
+    # Copy all templates to S3 bucket and deploy all nested stacks
+
     # Loop all available files
 
-    for alert_file in list_alerts_file:
+    #for alert_file in list_alerts_file:
 
-        alert_file_parsed = Utils.read_yml_file(alert_file)
+    #    alert_file_parsed = Utils.read_yml_file(alert_file)
 
-        create_cloudformation_template_alerts(alert_file_parsed)
+     #   create_cloudformation_template_alerts(alert_file_parsed)
 

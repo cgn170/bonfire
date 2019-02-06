@@ -78,8 +78,6 @@ class Deployment:
 
         plugin_modules[plugin_name].main(list_alerts_file, password_file_path)
 
-
-
         ##########################################
         # Check if the plugin exist and process it
         ##########################################
@@ -90,9 +88,6 @@ class Deployment:
 
         # plugin_module.Main("aaaa","bbb")
         # print(self.plugins[plugin_name])
-
-
-
 
     # Here is the logic to deploy
     def process_deployment(self, config_file_path):
@@ -176,6 +171,10 @@ class Deployment:
         ######################
         # Process each plugin
         ######################
+
+        # Create hidden folder for plugin deployment configuration
+
+        Utils.create_folder(overwrite=False, folder_path=Settings.CONFIGURATION_HIDDEN_FOLDER_DEPLOYMENT)
 
         # Get information about what plugins are available in the folder
         plugins_available = self.get_list_plugins()

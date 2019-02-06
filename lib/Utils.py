@@ -8,6 +8,7 @@ See the file 'LICENSE' for copying permission
 import os
 import yaml
 import random
+from shutil import rmtree
 from lib import SetupLogger
 
 
@@ -50,3 +51,30 @@ def generate_random_word(number_letters=3):
         return random_word
     else:
         return None
+
+
+# Create a folder with a path
+def create_folder(overwrite=False, folder_path=None):
+    # check if any previous folder exists
+    try:
+        exists = os.path.exists(folder_path)
+        if exists and not overwrite:
+            SetupLogger.logger.warn("Directory exist: {}, "
+                                    "will not be overwrite unless parameter overwrite is true"
+                                    .format(folder_path))
+        if exists and overwrite:
+            # Remove old directory
+            rmtree(folder_path)  # removes all the subdirectories!
+            # Create new dir
+            os.makedirs(folder_path)
+            SetupLogger.logger.info("Successfully overwrite the directory {} ".format(folder_path))
+        # if the path does not exist
+        if not exists:
+            # Create folder
+            os.mkdir(folder_path)
+            SetupLogger.logger.debug("Successfully created the directory {} ".format(folder_path))
+
+    except OSError as e:
+        SetupLogger.logger.fatal("Creation of the directory {0} failed - error: {1}"
+                                 .format(folder_path, e))
+        exit(1)
