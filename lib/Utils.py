@@ -28,12 +28,12 @@ def read_yml_file(file_path):
 
 
 # List of yml files in a directory
-def list_yml_files_in_directory(directory_path):
+def list_files_in_directory(directory_path, extension="yml"):
     filenames = os.listdir(directory_path)
     file_list = []
     for filename in filenames:
         # Check if the filename ends with yml extension
-        if filename.endswith("yml"):
+        if filename.endswith(extension):
             SetupLogger.logger.debug("YML file found: {}"
                                      .format(os.path.join(directory_path, filename)))
             file_list.append(os.path.join(directory_path, filename))

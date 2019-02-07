@@ -47,6 +47,18 @@ class Deployment:
 
         return plugin_list
 
+    # Get plugin information
+    def get_list_information_plugins(self):
+
+        plugins_modules = self.load_plugins()
+        plugin_list = []
+        for plugin, path in self.get_list_plugins().items():
+            plugin_list.append(
+                {"name": plugin,
+                 "path": path,
+                 "desc": plugins_modules[plugin].get_plugin_description()})
+        return plugin_list
+
     # Query plugin path with their name
     def get_plugin_path(self, plugin_name):
         if plugin_name in self.get_list_plugins():
@@ -58,7 +70,7 @@ class Deployment:
     ##################################
     # Import and process plugin for all alert files
     ##################################
-    def process_plugin(self, plugin_name, list_alerts_file, plugin_modules, password_file_path):
+    def process_alert_plugin(self, plugin_name, list_alerts_file, plugin_modules, password_file_path, dry_run):
 
         SetupLogger.logger.debug("Processing plugin: {}".format(plugin_name))
 
@@ -76,7 +88,7 @@ class Deployment:
         #####################################
         # We call external plugin
 
-        plugin_modules[plugin_name].main(list_alerts_file, password_file_path)
+        plugin_modules[plugin_name].deploy(list_alerts_file, password_file_path, dry_run)
 
         ##########################################
         # Check if the plugin exist and process it
@@ -84,13 +96,8 @@ class Deployment:
 
         SetupLogger.logger.debug("Finished plugin execution")
 
-        # print("PATH: {}".format(plugins_available.get(plugin_name)))
-
-        # plugin_module.Main("aaaa","bbb")
-        # print(self.plugins[plugin_name])
-
-    # Here is the logic to deploy
-    def process_deployment(self, config_file_path):
+    # Here is the logic to deploy a deployment
+    def process_alerts_deployment(self, config_file_path, dry_run):
 
         # Read configuration file
         config_file = Utils.read_yml_file(config_file_path)
@@ -140,18 +147,8 @@ class Deployment:
             SetupLogger.logger.fatal("Passwords file is not valid, exiting ...")
             exit(1)
 
-        # Get available plugins
-        # plugin_list = self.get_list_plugins()
-
-
-        # print("FINAL: {}".format(plugins))
-        # plugins['AWS'].HOLA()
-
-        # if len(plugin_list) > 0:
-        #    print("List of plugins: {}".format(plugin_list))
-
         # Check alerts file
-        alerts_list_file = Utils.list_yml_files_in_directory(alerts_dir)
+        alerts_list_file = Utils.list_files_in_directory(alerts_dir)
 
         if len(alerts_list_file) > 0:
             print("Number of alerts file found : {}".format(len(alerts_list_file)))
@@ -160,7 +157,7 @@ class Deployment:
             exit(1)
 
         # Check documentation
-        documentation_list_file = Utils.list_yml_files_in_directory(documentation_dir)
+        documentation_list_file = Utils.list_files_in_directory(documentation_dir, "")
 
         if len(documentation_list_file):
             print("Number of documentation file found: {}".format(len(documentation_list_file)))
@@ -169,7 +166,7 @@ class Deployment:
                   "(Optional) ...")
 
         ######################
-        # Process each plugin
+        # Process deployment process for each plugin
         ######################
 
         # Create hidden folder for plugin deployment configuration
@@ -183,4 +180,58 @@ class Deployment:
         plugins_modules = self.load_plugins()
 
         for plugin in plugins_available:
-            self.process_plugin(plugin, alerts_list_file, plugins_modules, passwords_file)
+            self.process_alert_plugin(plugin, alerts_list_file, plugins_modules, passwords_file, dry_run)
+
+    # Here is the logic to delete a deployment
+    def remove_alerts_deployment(self, config_file_path, dry_run):
+
+        # Read configuration file
+        config_file = Utils.read_yml_file(config_file_path)
+
+        # Check if the configuration folder exists
+        config_deployment_path = Settings.CONFIGURATION_HIDDEN_FOLDER_DEPLOYMENT
+
+        # Check if the configuration file exist
+        if config_file is None:
+            SetupLogger.logger.error("Configuration file not found: {}, exiting ...".format(config_file_path))
+            exit(1)
+
+        config = config_file.get('config')
+
+        # Validate if the dir is valid
+        if not os.path.isdir(config_deployment_path):
+            SetupLogger.logger.fatal("Configuration deployment directory is not valid, exiting ...")
+            exit(1)
+
+        # Check this **************
+        # Validate if the value exist if don't use default
+        if not config.get('passwords_file', False):
+            passwords_file = os.path.join(Settings.CONFIGURATION_FOLDERS["passwords"].get('folder'),
+                                          "passwords.yml")
+
+            SetupLogger.logger.debug(
+                "Variable passwords_file not defined, using default value: {}".format(passwords_file))
+        else:
+            passwords_file = config.get('passwords_file')
+            SetupLogger.logger.debug("passwords_file defined, using value: {}".format(passwords_file))
+        # Validate if the file is valid
+        if not os.path.isfile(passwords_file):
+            SetupLogger.logger.fatal("Passwords file is not valid, exiting ...")
+            exit(1)
+
+        ######################
+        # Process each deletion process for each plugin
+        ######################
+
+        # Get information about what plugins are available in the folder
+        plugins_available = self.get_list_plugins()
+
+        SetupLogger.logger.debug("Loading plugins ...")
+        plugins_modules = self.load_plugins()
+
+        for plugin in plugins_available:
+
+            # Call remove function inside the plugin
+            SetupLogger.logger.debug("Processing plugin: {}".format(plugin))
+            plugins_modules[plugin].remove(passwords_file, dry_run)
+            SetupLogger.logger.debug("Finished plugin execution")

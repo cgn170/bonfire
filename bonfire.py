@@ -3,20 +3,22 @@
 
 """
 Usage:
-    bonfire.py [-f] [-v level] [--config path] <Command>
+    bonfire.py [-v | -vv | -vvv] [-f] [--config path] [--dry-run] <Command>
     bonfire.py -h | --help | --version
 Options:
-  -h --help  - Show this message
-  -v         - Verbose mode level [ 1(info), 2(warning), 3(debug)]
-  -f         - Force command actions
-  --config   - Configuration file path
-  --version  - Version
+  -h --help   - Show this message
+  -f          - Force command actions
+  -v          - Verbose mode (vvv for more detail level)
+  --dry-run   - Create configuration files only, does not upload any configuration
+  --config    - Configuration file path
+  --version   - Version
 Command:
-  init       - Create configuration files and directories
-  deploy     - Deploy monitoring stack
-  remove     - Remove all configurations and stack deployed
-  plugins    - Show a list of available plugins
+  init        - Create configuration files and directories
+  deploy      - Deploy monitoring stack
+  remove      - Remove all configurations and stack deployed
+  plugins     - Show a list of available plugins
 """
+
 try:
     import os
     import sys
@@ -50,7 +52,18 @@ def main(args):
     overwrite = args['-f']
 
     # Verbose level
-    verbose = args['-v']
+    if args['-v'] == 0:
+        logging.getLogger().setLevel(logging.CRITICAL)
+    if args['-v'] == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    if args['-v'] == 2:
+        logging.getLogger().setLevel(logging.WARN)
+    if args['-v'] == 3:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+
+    # Dry run option
+    dry_run = args['--dry-run']
 
     # Configuration file
 
@@ -61,7 +74,7 @@ def main(args):
 
     # Process command
     if command:
-        menu.process_command(command, overwrite=overwrite, config_file_path=config_file_path)
+        menu.process_command(command, overwrite=overwrite, config_file_path=config_file_path, dry_run=dry_run)
 
 
 # Init main
