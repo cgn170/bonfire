@@ -1,6 +1,6 @@
-LATAM: # Category of the stack, this could be anything but must be a word
+GAMES: # Category of the stack, this could be Organizational unit or anything but must be a word
   AWS: # Service to use for monitoring
-      Account: latam # Account name defined in the passwords.yml file
+      Account: osgames  # Account name defined in the passwords.yml file
       SNS: # SNS option for the configuration of the alerts
         - Support-team-services: # Topic name
             - Protocol: Https # Subscriptions, you can put N number of them

@@ -2,3 +2,5 @@
 docopt
 configparser
 PyYAML
+boto3
+botocore
