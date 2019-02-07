@@ -1,0 +1,19 @@
+# Welcome to Bonfire!
+#
+# This file is the main config file of your deployment configuration.
+# It's has default values, you can always change or add more options.
+#
+#
+
+config:
+  # you can overwrite defaults here
+  #  Env: dev
+  #
+  # Default value: ./Alerts
+  # alerts_dir: /home/carlos/alerts
+  #
+  #passwords_file: "passwords/passwords.yml"
+  #
+  #documentation_dir: "documentation"
+  #
+  upload_documentation: False

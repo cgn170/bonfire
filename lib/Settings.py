@@ -13,25 +13,27 @@ GIT_PAGE = "https://github.com/cgn170/bonfire"
 
 CONFIGURATION_PATH = os.getcwd()
 PROJECT_PATH = os.path.dirname(sys.modules['__main__'].__file__)
+LIB_PATH = os.path.join(PROJECT_PATH, "lib")
 EXAMPLES_PATH = os.path.join(PROJECT_PATH, "examples")
-CONFIGURATION_FOLDERS = [
-    {
-        "folder": os.path.join(CONFIGURATION_PATH, "Alerts"),
+CONFIGURATION_FOLDERS = {
+
+    "alerts": {
+        "folder": os.path.join(CONFIGURATION_PATH, "alerts"),
         "example": os.path.join(EXAMPLES_PATH, "alerts.yml")
     },
-    {
-        "folder": os.path.join(CONFIGURATION_PATH, "Documentation"),
-        "example": os.path.join(EXAMPLES_PATH, "documentation.wiki")
+    "documentation": {
+        "folder": os.path.join(CONFIGURATION_PATH, "documentation"),
+        "example": os.path.join(EXAMPLES_PATH, "WI_unhealthyhostcount_AWS.wiki")
     },
-    {
-        "folder": os.path.join(CONFIGURATION_PATH, "Credentials"),
-        "example": os.path.join(EXAMPLES_PATH, "credentials.yml")
+    "passwords": {
+        # Is a good practice to not save this directory in any version system, example git
+        "folder": os.path.join(CONFIGURATION_PATH, "passwords"),
+        "example": os.path.join(EXAMPLES_PATH, "passwords.yml")
     }
-]
-
+}
+CONFIGURATION_HIDDEN_FOLDER_DEPLOYMENT = os.path.join(CONFIGURATION_PATH, '.deploy')
+CONFIGURATION_FILE_EXAMPLE = os.path.join(EXAMPLES_PATH, "bonfire.yml")
 CONFIGURATION_FILE_NAME = "bonfire.yml"
 CONFIGURATION_FILE_PATH = os.path.join(CONFIGURATION_PATH, CONFIGURATION_FILE_NAME)
 
-GLOBAL_SETTINGS = {
-
-}
+PLUGINS_PATH = os.path.join(LIB_PATH, "plugins")
