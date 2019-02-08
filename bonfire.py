@@ -61,7 +61,6 @@ def main(args):
     if args['-v'] == 3:
         logging.getLogger().setLevel(logging.DEBUG)
 
-
     # Dry run option
     dry_run = args['--dry-run']
 

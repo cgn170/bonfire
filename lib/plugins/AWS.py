@@ -436,8 +436,8 @@ def delete_cloudformation_stack(stack_name="", aws_access_key_id="", aws_secret_
             )
 
         if response["ResponseMetadata"]["HTTPStatusCode"] is 200:
-            SetupLogger.logger.debug('Stack {0} deleted successfully with id: {1}'
-                                     .format(stack_name, response['StackId']))
+            SetupLogger.logger.debug('Stack {0} deleted successfully'
+                                     .format(stack_name))
         else:
             SetupLogger.logger.error('Could not delete stack {0}, error: {1}'
                                      .format(stack_name, response))
