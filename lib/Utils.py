@@ -67,7 +67,7 @@ def create_folder(overwrite=False, folder_path=None):
             rmtree(folder_path)  # removes all the subdirectories!
             # Create new dir
             os.makedirs(folder_path)
-            SetupLogger.logger.info("Successfully overwrite the directory {} ".format(folder_path))
+            SetupLogger.logger.debug("Successfully overwrite the directory {} ".format(folder_path))
         # if the path does not exist
         if not exists:
             # Create folder

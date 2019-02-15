@@ -43,7 +43,7 @@ def upload_file_to_s3(region, aws_access_key_id, aws_secret_access_key, bucket_n
                               aws_secret_access_key=aws_secret_access_key)
             s3.upload_file(file_path, bucket_name, filename)
     except Exception as e:
-        raise Exception("Could not upload file {0} to S3 bucket {1}, error: {2}"
+        raise Exception("[error] Could not upload file {0} to S3 bucket {1}, error: {2}"
                         .format(file_path, bucket_name, e))
 
 
@@ -139,7 +139,7 @@ def check_sns_topic(topic_arn_list, category):
 
 # Create cloudformation template for each alert definition file
 def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_keys=None, dry_run=True):
-    print("[AWS] Creating cloudformation alerts template")
+    print("[plugin: AWS] Creating cloudformation alerts template")
 
     """    
     _aws_account = None
@@ -269,6 +269,7 @@ def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_ke
                 # Write template to file
                 stack_name = "{0}-{1}-alerts-stack".format(_account, category)
                 stack_file_path = os.path.join(_path_deployment_plugin, stack_name+".yml")
+                print("[plugin: AWS] '{0}' stack created in directory '{1}'".format(stack_name, stack_file_path))
                 write_cloudformation_template_to_file(stack, stack_file_path)
 
                 # Deploy template
@@ -303,7 +304,7 @@ def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_ke
                                                         ["aws_secret_access_key"],
                                                         region=aws_keys[_account]["region"])
                     else:
-                        SetupLogger.logger.debug("Account {} does not exist".format(_account))
+                        print("[plugin: AWS] Account {} does not exist".format(_account))
 
 
 # Create cloudformation template for the alert dashboard
@@ -333,7 +334,7 @@ def create_cloudformation_template_init_buckets3():
 # Create a cloudformation stack from a S3 bucket or locally
 def create_cloudformation_stack(cloudformation_path, stack_name="", bucket_name=None, aws_access_key_id="",
                                 aws_secret_access_key="", region=""):
-    SetupLogger.logger.debug("Deploying cloudformation template {}".format(cloudformation_path))
+    SetupLogger.logger.debug("[plugin: AWS] Deploying cloudformation template {}".format(cloudformation_path))
     try:
 
         session = boto3.Session(
@@ -370,14 +371,13 @@ def create_cloudformation_stack(cloudformation_path, stack_name="", bucket_name=
 
         # print 'Update completed successfully.'
     except Exception as e:
-        SetupLogger.logger.fatal('Fatal error, could not create stack {0}, error: {1}'
-                                 .format(stack_name, e))
+        print('[error] Could not create stack {0}, error: {1}'.format(stack_name, e))
 
 
 # Update a cloudformation stack from a S3 bucket or locally
 def update_cloudformation_stack(cloudformation_path, stack_name="", bucket_name=None, aws_access_key_id="",
                                 aws_secret_access_key="", region=""):
-    SetupLogger.logger.debug("Deploying cloudformation template {}".format(cloudformation_path))
+    SetupLogger.logger.debug("[plugin: AWS] Deploying cloudformation template {}".format(cloudformation_path))
     try:
 
         session = boto3.Session(
@@ -413,13 +413,13 @@ def update_cloudformation_stack(cloudformation_path, stack_name="", bucket_name=
 
         # print 'Update completed successfully.'
     except Exception as e:
-        SetupLogger.logger.fatal('Could not update cloudformation template {0}, error: {1}'
-                                 .format(cloudformation_path, e))
+        print('[error] Could not update cloudformation template {0}, error: {1}'
+              .format(cloudformation_path, e))
 
 
 # Delete a cloudformation stack from a S3 bucket or locally
 def delete_cloudformation_stack(stack_name="", aws_access_key_id="", aws_secret_access_key="", region=""):
-    SetupLogger.logger.debug("Deleting cloudformation stack {}".format(stack_name))
+    print("[plugin: AWS] Deleting cloudformation stack {}".format(stack_name))
     try:
 
         session = boto3.Session(
@@ -450,47 +450,50 @@ def delete_cloudformation_stack(stack_name="", aws_access_key_id="", aws_secret_
 
 # Check if a cloudformation stack exist in an aws account
 def check_cloudformation_stack(stack_name="", aws_access_key_id="", aws_secret_access_key="", region=""):
-    SetupLogger.logger.debug("Checking if stack {} already exist".format(stack_name))
-    stack_status_list = [
-        'CREATE_IN_PROGRESS',
-        'CREATE_FAILED',
-        'CREATE_COMPLETE',
-        'ROLLBACK_IN_PROGRESS',
-        'ROLLBACK_FAILED',
-        'ROLLBACK_COMPLETE',
-        'UPDATE_IN_PROGRESS',
-        'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS',
-        'UPDATE_COMPLETE',
-        'UPDATE_ROLLBACK_IN_PROGRESS',
-        'UPDATE_ROLLBACK_FAILED',
-        'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS',
-        'UPDATE_ROLLBACK_COMPLETE',
-        'REVIEW_IN_PROGRESS',
-    ]
+    try:
+        SetupLogger.logger.debug("Checking if stack {} already exist".format(stack_name))
+        stack_status_list = [
+            'CREATE_IN_PROGRESS',
+            'CREATE_FAILED',
+            'CREATE_COMPLETE',
+            'ROLLBACK_IN_PROGRESS',
+            'ROLLBACK_FAILED',
+            'ROLLBACK_COMPLETE',
+            'UPDATE_IN_PROGRESS',
+            'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS',
+            'UPDATE_COMPLETE',
+            'UPDATE_ROLLBACK_IN_PROGRESS',
+            'UPDATE_ROLLBACK_FAILED',
+            'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS',
+            'UPDATE_ROLLBACK_COMPLETE',
+            'REVIEW_IN_PROGRESS',
+        ]
 
-    session = boto3.Session(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
-        region_name=region)
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=region)
 
-    cloud_formation = session.client('cloudformation')
-    paginator = cloud_formation.get_paginator('list_stacks')
-    response_iterator = paginator.paginate(StackStatusFilter=stack_status_list)
+        cloud_formation = session.client('cloudformation')
+        paginator = cloud_formation.get_paginator('list_stacks')
+        response_iterator = paginator.paginate(StackStatusFilter=stack_status_list)
 
-    for page in response_iterator:
-        stack = page['StackSummaries']
-        for output in stack:
-            if stack_name == str(output['StackName']):
-                SetupLogger.logger.debug('Stack {} exist'.format(stack_name))
-                return True
+        for page in response_iterator:
+            stack = page['StackSummaries']
+            for output in stack:
+                if stack_name == str(output['StackName']):
+                    SetupLogger.logger.debug('Stack {} exist'.format(stack_name))
+                    return True
 
-    SetupLogger.logger.debug("Stack {} does not exist".format(stack_name))
-    return False
+        SetupLogger.logger.debug("Stack {} does not exist".format(stack_name))
+        return False
+    except Exception as e:
+        print('[error] Could not check cloudformation stack {0}, error: {1}'.format(stack_name, e))
 
 
 # Get aws access key from file
 def get_aws_keys(password_file_path):
-    SetupLogger.logger.debug("[AWS] Extracting aws key from password file")
+    SetupLogger.logger.debug("[plugin: AWS] Extracting aws key from password file")
     return Utils.read_yml_file(password_file_path)
 
 
@@ -521,7 +524,7 @@ def deploy(list_alerts_file, passwords, dry_run):
 
 # Remove function, remove stacks deployed
 def remove(passwords, dry_run):
-    print("[AWS] Removing cloudformation stacks alert")
+    print("[plugin: AWS] Removing cloudformation stacks alert")
 
     # Check if deployment folder exist
     if os.path.exists(_path_deployment_plugin):
@@ -552,7 +555,7 @@ def remove(passwords, dry_run):
                                             ["aws_secret_access_key"],
                                             region=aws_keys[aws_account_stack]["region"])
             else:
-                SetupLogger.logger.warning("AWS Cloudformation stack {} does not exists".format(stack_name))
+                print("[warning] AWS Cloudformation stack {} does not exists".format(stack_name))
 
     else:
-        SetupLogger.logger.fatal("Directory {} does not exists".format(_path_deployment_plugin))
+        print("[error] Directory {} does not exists".format(_path_deployment_plugin))

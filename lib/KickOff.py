@@ -58,7 +58,7 @@ class KickOff:
 
                 # if the path exist and overwrite flag is True
                 if exists and overwrite:
-                    # Remove old directoyu
+                    # Remove old directory
                     rmtree(val.get("folder"))  # removes all the subdirectories!
                     # Create new dir
                     os.makedirs(val.get("folder"))
@@ -82,6 +82,10 @@ class KickOff:
     # Create all started files
     def create_started_files(self, overwrite=False):
 
+        print("[-] Creating template folders.")
         self.create_configuration_folders(overwrite)
 
+        print("[-] Creating configuration file.")
         self.create_global_configuration_file(overwrite)
+
+        print("[-] Initialization files created successfully!")

@@ -38,7 +38,7 @@ except ImportError as e:
 
     SetupLogger.logger.error("Error importing library: {}".format(e))
 
-    raise Exception("Error importing library: {}".format(e))
+    raise Exception("[critical] Error importing library: {}".format(e))
 
 
 # Everything starts here
@@ -54,12 +54,16 @@ def main(args):
     # Verbose level
     if args['-v'] == 0:
         logging.getLogger().setLevel(logging.CRITICAL)
+        SetupLogger.logger.info("Setting logging level to CRITICAL")
     if args['-v'] == 1:
         logging.getLogger().setLevel(logging.INFO)
+        SetupLogger.logger.info("Setting logging level to INFO")
     if args['-v'] == 2:
         logging.getLogger().setLevel(logging.WARN)
+        SetupLogger.logger.info("Setting logging level to WARNNING")
     if args['-v'] == 3:
         logging.getLogger().setLevel(logging.DEBUG)
+        SetupLogger.logger.info("Setting logging level to DEBUG")
 
     # Dry run option
     dry_run = args['--dry-run']
