@@ -3,22 +3,27 @@
 
 """
 Usage:
-    bonfire.py [-v | -vv | -vvv] [-f] [--config path] [--dry-run] <Command>
+    bonfire.py [-v | -vv | -vvv] [-f] [--dry-run] [--config path] [--doc] [--matrix-format path] <Command>
     bonfire.py -h | --help | --version
 Options:
-  -h --help   - Show this message
-  -f          - Force command actions
-  -v          - Verbose mode (vvv for more detail level)
-  --dry-run   - Create configuration files only, does not upload any configuration
-  --config    - Configuration file path
-  --version   - Version
+  -h --help              - Show this message
+  -f                     - Force command actions
+  -v                     - Verbose mode (vvv for more detail level)
+  --dry-run              - Create configuration files only, does not upload any configuration
+  --config               - Configuration file path
+  --doc                  - Process documentation folder, this will create an alert matrix file
+  --matrix-format format - Define which alert matrix format use (xlsx, csv, wiki. default: wiki)
+  --version              - Version
 Command:
-  init        - Create configuration files and directories
-  deploy      - Deploy monitoring stack
-  remove      - Remove all configurations and stack deployed
-  plugins     - Show a list of available plugins
+  init                   - Create configuration files and directories
+  deploy                 - Deploy monitoring stack
+  remove                 - Remove all configurations and stack deployed
+  plugins                - Show a list of available plugins
 """
-
+"""
+Copyright (c) 2019 Carlos Noguera (cgn170)
+See the file 'LICENSE' for copying permission
+"""
 try:
     import os
     import sys
@@ -51,6 +56,12 @@ def main(args):
     # Force option
     overwrite = args['-f']
 
+    # Deploy documentation
+    deploy_documentation = args['--doc']
+
+    # Alert matrix format
+    alert_matrix_format = args['--matrix-format']
+
     # Verbose level
     if args['-v'] == 0:
         logging.getLogger().setLevel(logging.CRITICAL)
@@ -77,7 +88,8 @@ def main(args):
 
     # Process command
     if command:
-        menu.process_command(command, overwrite=overwrite, config_file_path=config_file_path, dry_run=dry_run)
+        menu.process_command(command, overwrite=overwrite, config_file_path=config_file_path, dry_run=dry_run,
+                             deploy_documentation=deploy_documentation, alert_matrix_format=alert_matrix_format)
 
 
 # Init main

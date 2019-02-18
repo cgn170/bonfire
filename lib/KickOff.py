@@ -49,7 +49,10 @@ class KickOff:
         folders = self.settings.CONFIGURATION_FOLDERS
         for key, val in folders.items():
             try:
-                exists = os.path.exists(val.get("folder"))
+                if val.get("folder") is not None:
+                    exists = os.path.exists(val.get("folder"))
+                else:
+                    exists = False
                 # if the path exist and overwrite flag is False
                 if exists and not overwrite:
                     SetupLogger.logger.warn("Folder exists: {}, "
@@ -68,11 +71,20 @@ class KickOff:
 
                 # if the path not exist
                 if not exists:
-                    # Create folder
-                    os.mkdir(val.get("folder"))
-                    # Copy example file
-                    copy(val.get("example"), val.get("folder"))
-                    SetupLogger.logger.info("Successfully created the directory {} ".format(val.get("folder")))
+                    if val.get("folder"):
+                        # Create folder
+                        os.mkdir(val.get("folder"))
+                        # Copy example file
+                        copy(val.get("example"), val.get("folder"))
+                        SetupLogger.logger.info("File successfully copy {0} in {1}"
+                                                .format(val.get("example"),
+                                                        val.get("folder")))
+                    else:
+                        # Copy example file
+                        copy(val.get("example"), Settings.CONFIGURATION_PATH)
+                        SetupLogger.logger.info("File successfully copied {0} in {1}"
+                                                .format(val.get("example"),
+                                                        Settings.CONFIGURATION_PATH))
 
             except OSError as e:
                 SetupLogger.logger.fatal("Creation of the directory {0} failed - error: {1}"

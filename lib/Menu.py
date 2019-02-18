@@ -7,8 +7,8 @@ See the file 'LICENSE' for copying permission
 
 from lib import KickOff
 from lib import Deployment
-from lib import SetupLogger
 from lib import Settings
+from lib import Documentation
 import sys
 sys.path.append("..")
 
@@ -20,10 +20,11 @@ class Menu:
 
     # Process each available command
     def process_command(self, command="", overwrite=False, config_file_path=Settings.CONFIGURATION_FILE_PATH,
-                        dry_run=True):
+                        dry_run=True, deploy_documentation=False, alert_matrix_format="wiki"):
 
         kickoff = KickOff.KickOff()
         deployment = Deployment.Deployment()
+        documentation = Documentation.Documentation()
 
         print("[-] Welcome to Bonfire Project!")
 
@@ -35,6 +36,10 @@ class Menu:
             print("[*] Deploying all stack, please wait ...")
             deployment.process_alerts_deployment(config_file_path, dry_run)
 
+            if deploy_documentation:
+                print("[*] Creating documentation, please wait ...")
+                documentation.process_documentation_deployment(config_file_path, dry_run)
+
         elif command == "remove":
             print("[*] Removing all deployments, please wait ...")
             deployment.remove_alerts_deployment(config_file_path, dry_run)
@@ -45,5 +50,5 @@ class Menu:
                 print("[-] [{0}]: {1}".format(plugin["name"], plugin["desc"]))
 
         else:
-            print("[error] Command: ['{}'] not found, exiting ...".format(command))
+            print("[error] Command: '{}' not found, exiting ...".format(command))
             exit(1)

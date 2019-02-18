@@ -117,18 +117,6 @@ class Deployment:
             SetupLogger.logger.fatal("Alerts directory is not valid, exiting ...")
             exit(1)
 
-        # Validate if the value exist if don't use default
-        if not config.get('documentation_dir', False):
-            documentation_dir = Settings.CONFIGURATION_FOLDERS["documentation"].get('folder')
-            SetupLogger.logger.debug("Variable documentation_dir not defined, using default value: {}".format(documentation_dir))
-        else:
-            documentation_dir = config.get('documentation_dir')
-            SetupLogger.logger.debug("documentation_dir defined, using value: {}".format(documentation_dir))
-        # Validate if the dir is valid
-        if not os.path.isdir(documentation_dir):
-            print("[error] Documentation directory is not valid, exiting ...")
-            exit(1)
-
         # Check this **************
         # Validate if the value exist if don't use default
         if not config.get('passwords_file', False):
@@ -152,14 +140,6 @@ class Deployment:
             print("[warning] No alerts definition file found, exiting ...")
             exit(1)
 
-        # Check documentation
-        documentation_list_file = Utils.list_files_in_directory(documentation_dir, "")
-
-        if len(documentation_list_file):
-            print("[-] Documentation files found: {}".format(len(documentation_list_file)))
-        else:
-            print("[warning] No documentation file found, is recommended to use some documentation for each alert "
-                  "(Optional) ...")
 
         ######################
         # Process deployment process for each plugin
