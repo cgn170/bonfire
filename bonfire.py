@@ -3,7 +3,7 @@
 
 """
 Usage:
-    bonfire.py [-v | -vv | -vvv] [-f] [--dry-run] [--config path] [--doc] [--matrix-format path] <Command>
+    bonfire.py [-v | -vv | -vvv] [-f] [--dry-run] [--config path] [--doc] [--mf format] <Command>
     bonfire.py -h | --help | --version
 Options:
   -h --help              - Show this message
@@ -12,7 +12,7 @@ Options:
   --dry-run              - Create configuration files only, does not upload any configuration
   --config               - Configuration file path
   --doc                  - Process documentation folder, this will create an alert matrix file
-  --matrix-format format - Define which alert matrix format use (xlsx, csv, wiki. default: wiki)
+  --mf format            - Define which alert matrix format to use (xlsx, csv, wiki. default: wiki)
   --version              - Version
 Command:
   init                   - Create configuration files and directories
@@ -60,7 +60,7 @@ def main(args):
     deploy_documentation = args['--doc']
 
     # Alert matrix format
-    alert_matrix_format = args['--matrix-format']
+    alert_matrix_format = args['--mf']
 
     # Verbose level
     if args['-v'] == 0:

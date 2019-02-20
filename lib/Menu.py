@@ -38,7 +38,7 @@ class Menu:
 
             if deploy_documentation:
                 print("[*] Creating documentation, please wait ...")
-                documentation.process_documentation_deployment(config_file_path, dry_run)
+                documentation.process_documentation_deployment(config_file_path, alert_matrix_format, dry_run)
 
         elif command == "remove":
             print("[*] Removing all deployments, please wait ...")
