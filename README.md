@@ -1,6 +1,6 @@
 # Bonfire
 
-bonfire is an open source Monitoring and IT Operations as code framework that automates the process of deployment of custom alarms and documentation in cloud providers also this could be used as part in an Infrastructure as Code pipeline and solve the problem of the IT Operation configuration.
+bonfire is an open source Monitoring and IT Operations as code framework that automates the process of deployment of custom alarms and documentation in cloud providers also this could be used as part of an Infrastructure as Code pipeline.
 
 Installation
 ----
@@ -22,7 +22,6 @@ Usage
 
 To get a list of basic options and switches use:
 
-.. code:: python
     python bonfire.py -h
     Usage:
         bonfire.py [-v | -vv | -vvv] [-f] [--dry-run] [--config path] [--doc] [--mf format] <Command>
