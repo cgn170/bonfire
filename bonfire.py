@@ -11,7 +11,7 @@ Options:
   -v                     - Verbose mode (vvv for more detail level)
   --dry-run              - Create configuration files only, does not upload any configuration
   --config               - Configuration file path
-  --doc                  - Process documentation folder, this will create an alert matrix file
+  --doc                  - Process documentation folder, this will create the alert matrix file
   --mf format            - Define which alert matrix format to use (xlsx, csv, wiki. default: wiki)
   --version              - Version
 Command:
