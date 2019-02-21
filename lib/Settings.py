@@ -29,6 +29,11 @@ CONFIGURATION_FOLDERS = {
         # Is a good practice to not save this directory in any version system, example git
         "folder": os.path.join(CONFIGURATION_PATH, "passwords"),
         "example": os.path.join(EXAMPLES_PATH, "passwords.yml")
+    },
+    "gitignore": {
+        # Gitignore example to avoid password leaks -> MUST IMPROVE THIS!!!!!!!!!!!!!!!
+        "folder": None,
+        "example": os.path.join(EXAMPLES_PATH, ".gitignore")
     }
 }
 CONFIGURATION_HIDDEN_FOLDER_DEPLOYMENT = os.path.join(CONFIGURATION_PATH, '.deploy')
