@@ -42,3 +42,6 @@ CONFIGURATION_FILE_NAME = "bonfire.yml"
 CONFIGURATION_FILE_PATH = os.path.join(CONFIGURATION_PATH, CONFIGURATION_FILE_NAME)
 
 PLUGINS_PATH = os.path.join(LIB_PATH, "plugins")
+ALERT_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "alerts")
+DOCUMENTATION_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "documentation")
+OPERATION_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "operations")

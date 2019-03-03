@@ -25,27 +25,31 @@ class KickOff:
             exists = os.path.exists(path)
             # if the path exist and overwrite flag is False
             if exists and not overwrite:
-                SetupLogger.logger.warn("Init file exist: {}, "
-                                        "if you want to overwrite the global configuration file please run again "
-                                        "with the -f option".format(path))
+                print("[warning] Config file exist: {}, "
+                      "if you want to overwrite the global configuration file please run again "
+                      "with the -f option".format(path))
+                return False
             # if the path exist and overwrite flag is True
             if exists and overwrite:
                 os.remove(self.settings.CONFIGURATION_FILE_PATH)
                 copy(self.settings.CONFIGURATION_FILE_EXAMPLE, self.settings.CONFIGURATION_PATH)
                 SetupLogger.logger.info("Successfully overwrite the file {} "
                                         .format(path))
+                return True
             # if the path not exist
             if not exists:
                 # Copy example file
                 copy(self.settings.CONFIGURATION_FILE_EXAMPLE, self.settings.CONFIGURATION_PATH)
                 SetupLogger.logger.info("Successfully created the directory {} "
                                         .format(path))
+                return True
         except OSError as e:
-            SetupLogger.logger.fatal("Creation of the file {0} failed - error: {1}".format(path, e))
+            print("[error] Creation of the file {0} failed - error: {1}".format(path, e))
             exit(1)
 
     # Create started configuration folders
     def create_configuration_folders(self, overwrite=False):
+        error = False
         folders = self.settings.CONFIGURATION_FOLDERS
         for key, val in folders.items():
             try:
@@ -55,10 +59,10 @@ class KickOff:
                     exists = False
                 # if the path exist and overwrite flag is False
                 if exists and not overwrite:
-                    SetupLogger.logger.warn("Folder exists: {}, "
-                                            "if you want to overwrite the folder please run again with the -f option"
-                                            .format(val.get("folder")))
-
+                    print("[warning] Folder exists: {}, "
+                          "if you want to overwrite the folder please run again with the -f option"
+                          .format(val.get("folder")))
+                    error = True
                 # if the path exist and overwrite flag is True
                 if exists and overwrite:
                     # Remove old directory
@@ -87,17 +91,24 @@ class KickOff:
                                                         Settings.CONFIGURATION_PATH))
 
             except OSError as e:
-                SetupLogger.logger.fatal("Creation of the directory {0} failed - error: {1}"
+                print("[error] Creation of the directory {0} failed - error: {1}"
                                          .format(val.get("folder"), e))
                 exit(1)
+        if error:
+            return False
+        else:
+            return True
 
     # Create all started files
     def create_started_files(self, overwrite=False):
 
         print("[-] Creating template folders.")
-        self.create_configuration_folders(overwrite)
+        folders_created = self.create_configuration_folders(overwrite)
 
         print("[-] Creating configuration file.")
-        self.create_global_configuration_file(overwrite)
+        config_file_created = self.create_global_configuration_file(overwrite)
 
-        print("[-] Initialization files created successfully!")
+        if folders_created and config_file_created:
+            print("[-] Initialization files created successfully!")
+        else:
+            print("[error] Error creating initialization files")
