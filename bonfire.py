@@ -116,13 +116,8 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
         kickoff.create_started_files(overwrite)
 
     elif command == "deploy":
-        if deploy_command == "alerts":
-            print("[deploy] Deploying alerts, please wait ...")
-            alerts.process_alerts_deployment(config_file_path,
-                                             dry_run,
-                                             "deploy")
 
-        elif deploy_command == "documentation":
+        if deploy_command == "documentation":
             print("[deploy] Deploying documentation, please wait ...")
             documentation.process_documentation_deployment(config_file_path,
                                                            alert_matrix_format,
@@ -132,29 +127,31 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
         elif deploy_command == "operations":
             print("[deploy] Deploying operations, please wait ...")
 
-        elif deploy_command == "all":
-            print("[deploy] Deploying all stack, please wait ...")
+        elif deploy_command == "alerts":
+            print("[deploy] Deploying alerts, please wait ...")
             alerts.process_alerts_deployment(config_file_path,
                                              dry_run,
                                              "deploy")
+
+        elif deploy_command == "all":
+            print("[deploy] Deploying all stack, please wait ...")
 
             documentation.process_documentation_deployment(config_file_path,
                                                            alert_matrix_format,
                                                            dry_run,
                                                            "deploy")
+
+            alerts.process_alerts_deployment(config_file_path,
+                                             dry_run,
+                                             "deploy")
+
         else:
             print("[error] Deploy command: '{}' not found, exiting ...".format(deploy_command))
             exit(1)
 
     elif command == "remove":
 
-        if deploy_command == "alerts":
-            print("[deploy] Removing alerts, please wait ...")
-            alerts.process_alerts_deployment(config_file_path,
-                                             dry_run,
-                                             "remove")
-
-        elif deploy_command == "documentation":
+        if deploy_command == "documentation":
             print("[deploy] Removing documentation, please wait ...")
             documentation.process_documentation_deployment(config_file_path,
                                                            alert_matrix_format,
@@ -164,21 +161,24 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
         elif deploy_command == "operations":
             print("[deploy] Removing operations, please wait ...")
 
-        elif deploy_command == "all":
-            print("[deploy] Removing all stack, please wait ...")
+        elif deploy_command == "alerts":
+            print("[deploy] Removing alerts, please wait ...")
             alerts.process_alerts_deployment(config_file_path,
                                              dry_run,
                                              "remove")
+
+        elif deploy_command == "all":
+            print("[deploy] Removing all stack, please wait ...")
 
             documentation.process_documentation_deployment(config_file_path,
                                                            alert_matrix_format,
                                                            dry_run,
                                                            "remove")
+            alerts.process_alerts_deployment(config_file_path,
+                                             dry_run,
+                                             "remove")
 
     elif command == "plugins":
-        print("[plugins] Alert plugins available: ")
-        for plugin in Utils.get_list_information_plugins("lib.plugins.alerts", Settings.ALERT_PLUGINS_PATH):
-            print("[{0}]: {1}".format(plugin["name"], plugin["desc"]))
 
         print("\n[plugins] Documentation plugins available: ")
         for plugin in Utils.get_list_information_plugins("lib.plugins.documentation",
@@ -188,6 +188,10 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
         print("\n[plugins] Operation plugins available: ")
         for plugin in Utils.get_list_information_plugins("lib.plugins.operations",
                                                          Settings.OPERATION_PLUGINS_PATH):
+            print("[{0}]: {1}".format(plugin["name"], plugin["desc"]))
+
+        print("\n[plugins] Alert plugins available: ")
+        for plugin in Utils.get_list_information_plugins("lib.plugins.alerts", Settings.ALERT_PLUGINS_PATH):
             print("[{0}]: {1}".format(plugin["name"], plugin["desc"]))
 
     else:
