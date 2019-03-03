@@ -1,0 +1,30 @@
+Operations:
+  Confluence:
+    Users:
+      Agent1:
+        Name: Carlos Noguera
+        Email: cgn170@gmail.com
+        Number: +1-555-5555
+        Schedule:
+          Monday: 8:00-15:00
+          Tuesday: 8:00-15:00
+          Wednesday: 8:00-15:00
+          Thrusday: 8:00-15:00
+          Friday: 8:00-15:00
+          Saturday: 8:00-15:00
+          Sunday: 8:00-15:00
+        Available: yes
+
+    Groups:
+      Frontend:
+        Desc: "Simple descriptions"
+        Users: Agent1
+
+    EscalationPolicy:
+      BackEndServices:
+        Level1:
+          Users:
+            - Agent1
+        Level2:
+          Groups:
+            - Frontend

@@ -1,6 +1,6 @@
 # Bonfire
 
-bonfire is an open source Monitoring and IT Operations as code framework that automates the process of deployment of custom alarms and documentation in cloud providers also this could be used as part of an Infrastructure as Code pipeline.
+bonfire is an open source Monitoring and IT Operations as code framework that automates the process of deployment of custom alarms and documentation in cloud providers also can be used as part of an Infrastructure as Code pipeline.
 
 Installation
 ----

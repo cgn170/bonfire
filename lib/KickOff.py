@@ -6,7 +6,7 @@ Copyright (c) 2019 Carlos Noguera (cgn170)
 See the file 'LICENSE' for copying permission
 """
 
-import os.path
+import os
 from lib import Settings
 from lib import SetupLogger
 from shutil import copy
