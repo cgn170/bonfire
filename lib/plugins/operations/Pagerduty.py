@@ -20,11 +20,11 @@ def get_plugin_description():
     return plugin_description
 
 
-# Deploy function, deploy all documentation template
-def deploy(dry_run):
-    print("Doing something")
+# Deploy function, deploy all operations template
+def deploy(dry_run, plugin_configuration_variables, passwords):
+    print("[plugin: Pagerduty] Doing something: {}".format(plugin_configuration_variables))
 
 
 # Remove function, remove stacks deployed
-def remove(passwords, dry_run):
-    print("Doing something")
+def remove(dry_run, plugin_configuration_variables, passwords):
+    print("[plugin: Pagerduty] Doing something")

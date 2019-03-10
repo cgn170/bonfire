@@ -108,6 +108,7 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
     kickoff = KickOff.KickOff()
     alerts = Alerts.Alerts()
     documentation = Documentation.Documentation()
+    operations = Operations.Operations()
 
     print("[-] Welcome to Bonfire Project!")
 
@@ -126,6 +127,9 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
 
         elif deploy_command == "operations":
             print("[deploy] Deploying operations, please wait ...")
+            operations.process_operations_deployment(config_file_path,
+                                                     dry_run,
+                                                     "deploy")
 
         elif deploy_command == "alerts":
             print("[deploy] Deploying alerts, please wait ...")
@@ -140,7 +144,9 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
                                                            alert_matrix_format,
                                                            dry_run,
                                                            "deploy")
-
+            operations.process_operations_deployment(config_file_path,
+                                                     dry_run,
+                                                     "deploy")
             alerts.process_alerts_deployment(config_file_path,
                                              dry_run,
                                              "deploy")
@@ -160,6 +166,9 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
 
         elif deploy_command == "operations":
             print("[deploy] Removing operations, please wait ...")
+            operations.process_operations_deployment(config_file_path,
+                                                           dry_run,
+                                                           "remove")
 
         elif deploy_command == "alerts":
             print("[deploy] Removing alerts, please wait ...")
@@ -172,6 +181,9 @@ def process_command(command="", overwrite=False, config_file_path=Settings.CONFI
 
             documentation.process_documentation_deployment(config_file_path,
                                                            alert_matrix_format,
+                                                           dry_run,
+                                                           "remove")
+            operations.process_operations_deployment(config_file_path,
                                                            dry_run,
                                                            "remove")
             alerts.process_alerts_deployment(config_file_path,

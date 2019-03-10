@@ -108,12 +108,19 @@ def update_confluence_page(base_url, username, password, page_id, page_title, pa
 
     SetupLogger.logger.info('Finished update confluence page function')
 
+# Create a confluence page
+
+
+# Create workspace plugin
+def create_confluence_page(base_url, username, password, page_title, page_content):
+    pass
+
 
 # Deploy function, deploy all documentation template
-def deploy(dry_run):
-    print("Doing something")
+def deploy(dry_run, plugin_configuration_variables, passwords):
+    print("[plugin: Confluence] Doing something: {}".format(plugin_configuration_variables))
 
 
 # Remove function, remove stacks deployed
-def remove(passwords, dry_run):
-    print("Doing something")
+def remove(dry_run, plugin_configuration_variables, passwords):
+    print("[plugin: Confluence] Doing something")

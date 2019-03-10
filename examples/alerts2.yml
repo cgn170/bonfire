@@ -4,7 +4,7 @@ GAMES: # Category of the stack, this could be Organizational unit or anything bu
       SNS: # SNS option for the configuration of the alerts
         - Support-team-services: # Topic name
             - Protocol: Https # Subscriptions, you can put N number of them
-              Endpoint: ${operations:confluence:groups:frontend}
+              Endpoint: ${Operations:Pagerduty:Services:Frontend}
       Cloudwatch:
         Alert1: # You can use any name for the alert, is not necessary for the deploy
           MetricName: UnHealthyHostCount # MetricName to monitor

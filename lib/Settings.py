@@ -49,3 +49,6 @@ PLUGINS_PATH = os.path.join(LIB_PATH, "plugins")
 ALERT_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "alerts")
 DOCUMENTATION_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "documentation")
 OPERATION_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "operations")
+
+DEFAULT_DOCUMENTATION_PLUGIN = "Confluence"
+DEFAULT_OPERATIONS_PLUGIN = "Pagerduty"
