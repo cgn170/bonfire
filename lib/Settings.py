@@ -30,6 +30,10 @@ CONFIGURATION_FOLDERS = {
         "folder": os.path.join(CONFIGURATION_PATH, "passwords"),
         "example": os.path.join(EXAMPLES_PATH, "passwords.yml")
     },
+    "operations": {
+        "folder": os.path.join(CONFIGURATION_PATH, "operations"),
+        "example": os.path.join(EXAMPLES_PATH, "operations.yml")
+    },
     "gitignore": {
         # Gitignore example to avoid password leaks -> MUST IMPROVE THIS!!!!!!!!!!!!!!!
         "folder": None,
@@ -42,3 +46,9 @@ CONFIGURATION_FILE_NAME = "bonfire.yml"
 CONFIGURATION_FILE_PATH = os.path.join(CONFIGURATION_PATH, CONFIGURATION_FILE_NAME)
 
 PLUGINS_PATH = os.path.join(LIB_PATH, "plugins")
+ALERT_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "alerts")
+DOCUMENTATION_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "documentation")
+OPERATION_PLUGINS_PATH = os.path.join(PLUGINS_PATH, "operations")
+
+DEFAULT_DOCUMENTATION_PLUGIN = "Confluence"
+DEFAULT_OPERATIONS_PLUGIN = "Pagerduty"

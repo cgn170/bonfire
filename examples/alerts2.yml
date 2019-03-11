@@ -1,0 +1,46 @@
+GAMES: # Category of the stack, this could be Organizational unit or anything but must be a word
+  AWS: # Service to use for monitoring
+      Account: osgames  # Account name defined in the passwords.yml file
+      SNS: # SNS option for the configuration of the alerts
+        - Support-team-services: # Topic name
+            - Protocol: Https # Subscriptions, you can put N number of them
+              Endpoint: ${Operations:Pagerduty:Services:Frontend}
+      Cloudwatch:
+        Alert1: # You can use any name for the alert, is not necessary for the deploy
+          MetricName: UnHealthyHostCount # MetricName to monitor
+          Subcategory: LoadBalancer # Subcategory: is optional
+          Env: Prod # Environment
+          Desc: Trigger a notification alert if any instance is unhealthy on the load balancer. # Alert Description
+          WI: https://www.google.com # URL for the WorkInstruction with the instructions to solve the issue
+          Severity: Critical # Define alert severity, could be Normal, Warning, Critical
+          Comparator: ">=" # Comparator value, could be <, <=, >, >=, must use ""
+          Threshold: 2 # Threshold value
+          EvaluationPeriods: 5 # Evaluation periods for the alert
+          Period: 60 # Period in seconds
+          Statistic: Average # Statistic type
+          Namespace: AWS/ELB # Alert namespace
+          TreatMissingData: missing # Optional, could be missing, notBreaching, breaching, ignore. default value: missing
+          Dimensions: # Dimensions, this is needed to create the alert for more information visit https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cw-dimension.html
+            - Name: LoadBalancerName
+              Value: XX-YY-ZZ # also could be -> !ImportValue Exported-value-in-cloudformation
+          Runbook: # This is not supported yet
+        Alert2:
+          Subcategory: LoadBalancer
+          Env: Prod
+          Desc: Trigger a notification alert if any instance is unhealthy on the load balancer.
+          WI: documentation/WI_unhealhtyhostcount_AWS.wiki
+          MetricName: UnHealthyHostCount
+          Severity: Warning
+          Comparator: ">"
+          Threshold: 1
+          EvaluationPeriods: 5
+          Period: 60
+          Statistic: Average
+          Namespace: AWS/ELB
+          Dimensions:
+            - Name: LoadBalancerName
+              Value: "!ImportValue LoadBalancerNameExported" # Must use ""
+
+
+
+

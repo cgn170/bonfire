@@ -10,6 +10,7 @@ import yaml
 import random
 from shutil import rmtree
 from lib import SetupLogger
+import importlib
 
 
 # Read and parse a YML file
@@ -78,3 +79,51 @@ def create_folder(overwrite=False, folder_path=None):
         SetupLogger.logger.fatal("Creation of the directory {0} failed - error: {1}"
                                  .format(folder_path, e))
         exit(1)
+
+
+# Get list of plugin
+def get_list_plugins(plugin_path_folder):
+
+    filenames = os.listdir(plugin_path_folder)
+    plugin_list = {}
+    for filename in filenames:
+        if os.path.isfile(os.path.join(plugin_path_folder, filename)):
+            if filename.endswith(".py") and not filename.startswith("__"):
+                plugin_list[filename.replace(".py", "")] = os.path.join(plugin_path_folder, filename)
+
+    return plugin_list
+
+
+# Get plugin information
+def get_list_information_plugins(plugin_package, plugin_path_folder):
+
+    plugins_modules = load_plugins(plugin_package, plugin_path_folder)
+    plugin_list = []
+    for plugin, path in get_list_plugins(plugin_path_folder).items():
+        plugin_list.append(
+            {"name": plugin,
+             "path": path,
+             "desc": plugins_modules[plugin].get_plugin_description()})
+    return plugin_list
+
+
+# Query plugin path with their name
+def get_plugin_path(self, plugin_name, plugin_path_folder):
+    if plugin_name in self.get_list_plugins():
+        SetupLogger.logger.debug("Plugin '{0}' was found in {1}".format(plugin_name, plugin_path_folder))
+        return os.path.join(plugin_path_folder, plugin_name)
+    SetupLogger.logger.debug("Plugin '{0}' was not found in {1}".format(plugin_name, plugin_path_folder))
+    return None
+
+
+# Load all plugins in objects
+def load_plugins(plugin_package, plugin_path_folder):
+
+    # Load all plugins, i should improve this ....
+    importlib.import_module(plugin_package)
+    modules = {}
+    plugins = get_list_plugins(plugin_path_folder)
+    for plugin, path in plugins.items():
+        modules[plugin] = importlib.import_module(plugin_package+"."+plugin, package=plugin_package)
+        SetupLogger.logger.debug("'{0}' plugin loaded successfully".format(plugin))
+    return modules

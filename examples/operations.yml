@@ -1,0 +1,45 @@
+Operations:
+  Pagerduty:
+    Users:
+      Agent1:
+        Name: Carlos Noguera
+        Title: Sysadmin Engineer
+        Bio: ""
+        Timezone: UTC-05:00
+        Email:
+          - cgn170@gmail.com
+        Phone:
+          - +1-555-5555
+        Push:
+          - "SM-G610M"
+        Schedule:
+          Monday: 8:00-15:00
+          Tuesday: 8:00-15:00
+          Wednesday: 8:00-15:00
+          Thrusday: 8:00-15:00
+          Friday: 8:00-15:00
+          Saturday: 8:00-15:00
+          Sunday: 8:00-15:00
+        Available: yes
+        OnCall: yes
+
+    Groups:
+      FrontEndTeam:
+        Members:
+          - !Ref Agent1
+
+    Services:
+      Frontend:
+        Desc: "Simple descriptions"
+        EscalationPolicy:
+          - !Ref FrontendDeveloperTeam
+
+    EscalationPolicies:
+      OperationsTeam:
+        Desc: "Notification list of the BackEnd Service"
+        Level1:
+          Users:
+            - !Ref Agent1
+        Level2:
+          Groups:
+            - !FrontEndTeam
