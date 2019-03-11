@@ -24,7 +24,7 @@ To get a list of basic options and switches use:
 
     python bonfire.py -h
     Usage:
-        bonfire.py [-v | -vv | -vvv] [-f] [--dry-run] [--config path] [--doc] [--mf format] <Command>
+        bonfire.py [-v | -vv | -vvv] [-f] [--dry-run] [--config path] [--mf format] <Command> [<Deploy>]
         bonfire.py -h | --help | --version
     Options:
       -h --help              - Show this message
@@ -32,11 +32,16 @@ To get a list of basic options and switches use:
       -v                     - Verbose mode (vvv for more detail level)
       --dry-run              - Create configuration files only, does not upload any configuration
       --config               - Configuration file path
-      --doc                  - Process documentation folder, this will create the alert matrix file
-      --mf format            - Define which alert matrix format to use (xlsx, csv, wiki. default: wiki)
       --version              - Version
     Command:
-      init                   - Create configuration files and directories
-      deploy                 - Deploy monitoring stack
-      remove                 - Remove all configurations and stack deployed
-      plugins                - Show a list of available plugins
+      init                   - Create configuration files and directories.
+      deploy                 - Deploy monitoring stack.
+      remove                 - Remove all configurations and stack deployed.
+      plugins                - Show a list of available plugins.
+    Deploy:
+      all                    - Default option (Can be empty), deploy everything.
+      alerts                 - Deploy only alerts.
+      documentation          - Create the alert matrix and upload all documentation (Deploy only documentation).
+      operations             - Deploy operation stack configuration.
+    Documentation:
+      --mf format            - Define which alert matrix format to use (xlsx, csv, wiki. default: wiki)
