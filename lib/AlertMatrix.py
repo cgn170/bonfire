@@ -172,7 +172,7 @@ class AlertMatrix:
                 _period = value["Period"]
                 _threshold = value["Threshold"]
                 # Category-subcategory-environment-metric-comparator-threshold-evaluation_period-severity
-                _alarm_name = "-".join([_category, _sub_category, _env,
+                _alarm_name = "_".join([_category, _sub_category, _env,
                                         _metric, _comparator, str(_threshold),
                                         str(_period), _severity])
                 SetupLogger.logger.debug('Added alert: {}'.format(_alarm_name))

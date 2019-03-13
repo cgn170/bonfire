@@ -225,7 +225,7 @@ def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_ke
                     elif str(alert['Comparator']) == '<=':
                         _comparison_operator = 'LessThanOrEqualToThreshold'
 
-                    _alarm_name = "-".join([_category, _sub_category, _environment,
+                    _alarm_name = "_".join([_category, _sub_category, _environment,
                                             _metric_name, _comparison_operator, str(_threshold),
                                             str(_evaluation_period), _severity])
 

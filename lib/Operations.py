@@ -56,12 +56,12 @@ class Operations:
             SetupLogger.logger.debug("passwords_file defined, using value: {}".format(passwords_file_path))
 
         # Load path list file documentation from documentation folder
-        documentation_list_file = Utils.list_files_in_directory(operations_dir, "")
+        operations_list_file = Utils.list_files_in_directory(operations_dir, "")
 
-        if len(documentation_list_file):
-            print("[-] Documentation files found: {}".format(len(documentation_list_file)))
+        if len(operations_list_file):
+            print("[-] Operations file found: {}".format(len(operations_list_file)))
         else:
-            print("[warning] No documentation file found, is recommended to use some documentation for each alert "
+            print("[warning] No operation file found, is recommended to use at least one operation file "
                   "(Optional) ...")
 
         # Check if upload_operations variable is available
