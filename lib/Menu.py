@@ -124,6 +124,8 @@ class Menu:
             for plugin in Utils.get_list_information_plugins("lib.plugins.alerts", Settings.ALERT_PLUGINS_PATH):
                 print("[{0}]: {1}".format(plugin["name"], plugin["desc"]))
 
+            print("\n")
+
         else:
             print("[error] Command: '{}' not found, exiting ...".format(command))
             exit(1)

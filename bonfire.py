@@ -20,10 +20,10 @@ Command:
 Deploy:
   all                    - Default option (Can be empty), deploy everything.
   alerts                 - Deploy only alerts.
-  documentation          - Create the alert matrix and upload all documentation (Deploy only documentation).
+  documentation          - Create the alert matrix and upload all documentation (Deploy only documentation) [Working Progress].
   operations             - Deploy operation stack configuration.
 Documentation:
-  --mf format            - Define which alert matrix format to use (xlsx, csv, wiki. default: wiki)
+  --mf format            - Define which alert matrix format to use (xlsx, csv, wiki. default: wiki) [Working Progress]
 
 """
 """
