@@ -43,6 +43,40 @@ GAMES: # Category of the stack, this could be Organizational unit or anything bu
             - Name: LoadBalancerName
               Value: "!ImportValue LoadBalancerNameExported" # Must use ""
 
-
-
+  GOOGLE: # Service to use for monitoring
+      Account: osgames  # Account name defined in the passwords.yml file
+      Notifications: # SNS option for the configuration of the alerts
+        - Protocol: Email # Subscriptions, you can put N number of them
+          NotificationChannel: operations-team-email@bigcompany.com
+      Stackdriver:
+        Alert1: # You can use any name for the alert, is not necessary for the deploy
+          MetricName: CpuUsage # MetricName to monitor
+          Subcategory:  # Subcategory: is optional
+          Env: Prod # Environment
+          Desc: Trigger a notification alert if the instance have a high CPU usage. # Alert Description
+          Severity: Critical # Define alert severity, could be Normal, Warning, Critical
+          TreatMissingData: missing # Optional, could be missing, notBreaching, breaching, ignore. default value: missing
+          Target: # Target, this is needed to create the alert for more information visit https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cw-dimension.html
+            ResourceType: "GCE VM Instance"
+            Metric: "CPU usage"
+            Filters: # Optional
+              - FilterName: "instance_name"
+                FilterValue: ""
+            GroupBy: # Optional
+              - FilterName: ""
+                FilterValue: ""
+            Aggregation: # Optional
+              Aligner: "sum"
+              Reducer: "none"
+              AlignmentPeriod: ""
+              SecondaryReducer: ""
+          Condition:
+            AlertTrigger:
+              TriggerName: "Any time series violates"
+              TriggerValue: ""
+            Comparator: ">" # Comparator value, could be >, <, ++, --, and no_exists, must use ""
+            Threshold: 80 # Threshold value
+            Period: 60 # Period in seconds
+          WI: https://www.google.com # URL for the WorkInstruction with the instructions to solve the issue
+          Runbook: # This is not supported yet
 

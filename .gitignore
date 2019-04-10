@@ -68,3 +68,4 @@ fabric.properties
 
 # Python
 lib/__pycache__/*
+*.pyc
