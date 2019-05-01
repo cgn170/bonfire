@@ -44,12 +44,9 @@ def create_terraform_template_alerts(alert_yml_data=None, gcp_keys=None, dry_run
             _monitoring_system = str(monitoring_system)
 
             # Check if the monitor tool is AWS
-            if _monitoring_system == "GOOGLE":
+            if _monitoring_system == "GCP":
                 _account = str(alert_yml_data[_category][_monitoring_system]['Account'])
                 print(_account)
-
-
-
 
 
 # Deploy function, create and deploy cloudformation template with alerts configuration

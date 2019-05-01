@@ -43,7 +43,7 @@ GAMES: # Category of the stack, this could be Organizational unit or anything bu
             - Name: LoadBalancerName
               Value: "!ImportValue LoadBalancerNameExported" # Must use ""
 
-  GOOGLE: # Service to use for monitoring
+  GCP: # Service to use for monitoring
       Account: osgames  # Account name defined in the passwords.yml file
       Notifications: # SNS option for the configuration of the alerts
         - Protocol: Email # Subscriptions, you can put N number of them
@@ -51,7 +51,7 @@ GAMES: # Category of the stack, this could be Organizational unit or anything bu
       Stackdriver:
         Alert1: # You can use any name for the alert, is not necessary for the deploy
           MetricName: CpuUsage # MetricName to monitor
-          Subcategory:  # Subcategory: is optional
+          Subcategory: VM # Subcategory: is optional
           Env: Prod # Environment
           Desc: Trigger a notification alert if the instance have a high CPU usage. # Alert Description
           Severity: Critical # Define alert severity, could be Normal, Warning, Critical
@@ -79,4 +79,21 @@ GAMES: # Category of the stack, this could be Organizational unit or anything bu
             Period: 60 # Period in seconds
           WI: https://www.google.com # URL for the WorkInstruction with the instructions to solve the issue
           Runbook: # This is not supported yet
+        Alert2:
+          MetricName: CpuUsage
+          Subcategory:  VM
+          Env: Prod
+          Desc: Trigger a notification alert if the instance have a high CPU usage.
+          Severity: Warning
+          Target:
+            ResourceType: "GCE VM Instance"
+            Metric: "CPU usage"
+          Condition:
+            AlertTrigger:
+              TriggerName: "Any time series violates"
+              TriggerValue: ""
+            Comparator: ">"
+            Threshold: 80
+            Period: 60
+          WI: https://www.google.com
 

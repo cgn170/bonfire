@@ -136,7 +136,7 @@ def check_sns_topic(topic_arn_list, category):
 
 
 # Create cloudformation template for each alert definition file
-def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_keys=None, dry_run=True):
+def create_cloudformation_template_alerts(alert_yml_data=None):
     print("[plugin: AWS] Creating cloudformation alerts template")
 
     """    
@@ -266,43 +266,47 @@ def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_ke
 
                 # Write template to file
                 stack_name = "{0}-{1}-alerts-stack".format(_account, category)
-                stack_file_path = os.path.join(_path_deployment_plugin, stack_name+".yml")
+                stack_file_path = os.path.join(_path_deployment_plugin, stack_name + ".yml")
                 print("[plugin: AWS] '{0}' stack created in directory '{1}'".format(stack_name, stack_file_path))
                 write_cloudformation_template_to_file(stack, stack_file_path)
 
-                # Deploy template
-                if not dry_run:
-                    # Check if the account exist
-                    account_exists = False
-                    SetupLogger.logger.debug("Checking if account {} exists in password file".format(_account))
-                    for key, val in aws_keys.items():
-                        if key.lower() == _account.lower():
-                            SetupLogger.logger.debug("Account {} exists".format(_account))
-                            account_exists = True
-                            break
 
-                    if account_exists:
-                        if check_cloudformation_stack(stack_name=stack_name,
-                                                      aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
-                                                      aws_secret_access_key=aws_keys[_account]
-                                                      ["aws_secret_access_key"],
-                                                      region=aws_keys[_account]["region"]):
-                            update_cloudformation_stack(cloudformation_path=stack_file_path,
-                                                        stack_name=stack_name,
-                                                        bucket_name=None,
-                                                        aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
-                                                        aws_secret_access_key=aws_keys[_account]
-                                                        ["aws_secret_access_key"],
-                                                        region=aws_keys[_account]["region"])
-                        else:
-                            create_cloudformation_stack(cloudformation_path=stack_file_path,
-                                                        stack_name=stack_name,
-                                                        aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
-                                                        aws_secret_access_key=aws_keys[_account]
-                                                        ["aws_secret_access_key"],
-                                                        region=aws_keys[_account]["region"])
-                    else:
-                        print("[plugin: AWS] Account {} does not exist".format(_account))
+def deploy_cloudformation_template_alerts(alert_yml_data=None, dry_run=True):
+    # Deploy template
+    if not dry_run:
+        # Check if the account exist
+        account_exists = False
+        """
+        SetupLogger.logger.debug("Checking if account {} exists in password file".format(_account))
+        for key, val in aws_keys.items():
+            if key.lower() == _account.lower():
+                SetupLogger.logger.debug("Account {} exists".format(_account))
+                account_exists = True
+                break
+
+        if account_exists:
+            if check_cloudformation_stack(stack_name=stack_name,
+                                          aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
+                                          aws_secret_access_key=aws_keys[_account]
+                                          ["aws_secret_access_key"],
+                                          region=aws_keys[_account]["region"]):
+                update_cloudformation_stack(cloudformation_path=stack_file_path,
+                                            stack_name=stack_name,
+                                            bucket_name=None,
+                                            aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
+                                            aws_secret_access_key=aws_keys[_account]
+                                            ["aws_secret_access_key"],
+                                            region=aws_keys[_account]["region"])
+            else:
+                create_cloudformation_stack(cloudformation_path=stack_file_path,
+                                            stack_name=stack_name,
+                                            aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
+                                            aws_secret_access_key=aws_keys[_account]
+                                            ["aws_secret_access_key"],
+                                            region=aws_keys[_account]["region"])
+        else:
+            print("[plugin: AWS] Account {} does not exist".format(_account))
+        """
 
 
 # Create cloudformation template for the alert dashboard
@@ -510,14 +514,16 @@ def deploy(list_alerts_file, passwords, dry_run):
     # write_cloudformation_template_to_file(buckets3_template,
     #                                   os.path.join(_path_deployment_plugin, "bonfire_init_buckets3.yml"))
 
-    aws_keys = get_aws_keys(passwords)["AWS"]
+    #aws_keys = get_aws_keys(passwords)["AWS"]
 
-    # Deploy template and wait until is finish
+    # Create cloudformation templates
     for alert_file in list_alerts_file:
         alert_file_parsed = Utils.read_yml_file(alert_file)
-        create_and_deploy_cloudformation_template_alerts(alert_yml_data=alert_file_parsed,
-                                                         aws_keys=aws_keys,
-                                                         dry_run=dry_run)
+        create_cloudformation_template_alerts(alert_yml_data=alert_file_parsed)
+
+    # Deploy cloudformation templates
+    if dry_run:
+        deploy_cloudformation_template_alerts(alert_yml_data=None, dry_run=True)
 
 
 # Remove function, remove stacks deployed

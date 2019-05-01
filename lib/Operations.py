@@ -6,7 +6,6 @@ Copyright (c) 2019 Carlos Noguera (cgn170)
 See the file 'LICENSE' for copying permission
 """
 
-import os
 from lib import Utils
 from lib import Settings
 from lib import SetupLogger
@@ -29,7 +28,7 @@ class Operations:
         documentation_list_file = Utils.list_files_in_directory(config_obj.operations_dir, "")
 
         if len(documentation_list_file):
-            print("[-] Documentation files found: {}".format(len(documentation_list_file)))
+            print("[-] Operation files found: {}".format(len(documentation_list_file)))
         else:
             print("[warning] No documentation file found, is recommended to use some documentation for each alert "
                   "(Optional) ...")

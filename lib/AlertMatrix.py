@@ -166,7 +166,7 @@ class AlertMatrix:
                 _sub_category = value["Subcategory"]
                 _metric = value["MetricName"]
                 _severity = value["Severity"]
-                _wi = value["WI"]
+                _wi = value.get("WI","")
                 _env = value["Env"]
                 _comparator = value["Comparator"]
                 _period = value["Period"]
@@ -175,11 +175,35 @@ class AlertMatrix:
                 _alarm_name = "-".join([_category, _sub_category, _env,
                                         _metric, _comparator, str(_threshold),
                                         str(_period), _severity])
-                SetupLogger.logger.debug('Added alert: {}'.format(_alarm_name))
+                SetupLogger.logger.debug('Added cloudwatch alert: {}'.format(_alarm_name))
                 matrix.append(AlertDefinitionData(_alarm_name, _category, _sub_category, _metric,
                                                   _severity, _wi, _env))
         except Exception as e:
             print('[error] Could not parse cloudwatch alerts: {}'.format(e))
+
+    # Parse stackdriver alerts
+    def parse_stackdriver_alerts(self, alerts, matrix):
+        try:
+            for key, value in alerts.data["Stackdriver"].items():
+                print(value)
+                _category = alerts.category
+                _sub_category = value["Subcategory"]
+                _metric = value["MetricName"]
+                _severity = value["Severity"]
+                _wi = value.get("WI", "")
+                _env = value["Env"]
+                _comparator = value["Condition"]["Comparator"]
+                _period = value["Condition"]["Period"]
+                _threshold = value["Condition"]["Threshold"]
+                # Category-subcategory-environment-metric-comparator-threshold-evaluation_period-severity
+                _alarm_name = "-".join([_category, _sub_category, _env,
+                                        _metric, _comparator, str(_threshold),
+                                        str(_period), _severity])
+                SetupLogger.logger.debug('Added stackdriver alert: {}'.format(_alarm_name))
+                matrix.append(AlertDefinitionData(_alarm_name, _category, _sub_category, _metric,
+                                                  _severity, _wi, _env))
+        except Exception as e:
+            print('[error] Could not parse stackdriver alerts: {}'.format(e))
 
     # Parse each
     def load_alert_matrix(self, alert_folder):
@@ -210,6 +234,9 @@ class AlertMatrix:
                         # Parse AWS alerts
                         if alert.tool.lower() == "aws":
                             self.parse_cloudwatch_alerts(alert, matrix)
+                        # Parse GCP alerts
+                        elif alert.tool.lower() == "gcp":
+                            self.parse_stackdriver_alerts(alert, matrix)
 
                     except Exception as e:
                         print('[error] Could not parsed alert: {}'.format(e))
