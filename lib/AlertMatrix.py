@@ -227,7 +227,7 @@ class AlertMatrix:
     def create_alert_matrix(self, alerts_dir, alert_matrix_format, matrix_output_path):
 
         # Create alert matrix
-        print("[-] Building alert matrix, please wait ...")
+        SetupLogger.logger.info("Loading alert matrix, please wait ...")
         alert_matrix = self.load_alert_matrix(alerts_dir)
         print("[-] Alert matrix created successfully!")
         # Default value is wiki

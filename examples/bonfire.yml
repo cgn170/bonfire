@@ -14,7 +14,7 @@ config:
   # alerts_dir: alerts
 
   # Default: "passwords/passwords.yml"
-  # passwords_file: "passwords/passwords.yml"
+  passwords_file: "passwords/passwords.yml"
 
   # Default: documentation
   # documentation_dir: "documentation"

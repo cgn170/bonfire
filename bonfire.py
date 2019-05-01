@@ -12,13 +12,13 @@ Options:
   --dry-run              - Create configuration files only, does not upload any configuration
   --config               - Configuration file path
   --version              - Version
+  --password-file        - Create a password file in the directory, is not recommended have any secrets in the configuration directory
 Command:
   init                   - Create configuration files and directories.
   deploy                 - Deploy monitoring stack.
   remove                 - Remove all configurations and stack deployed.
   plugins                - Show a list of available plugins.
 Deploy:
-  all                    - Default option (Can be empty), deploy everything.
   alerts                 - Deploy only alerts.
   documentation          - Create the alert matrix and upload all documentation (Deploy only documentation).
   operations             - Deploy operation stack configuration.

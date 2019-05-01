@@ -127,3 +127,4 @@ def load_plugins(plugin_package, plugin_path_folder):
         modules[plugin] = importlib.import_module(plugin_package+"."+plugin, package=plugin_package)
         SetupLogger.logger.debug("'{0}' plugin loaded successfully".format(plugin))
     return modules
+
