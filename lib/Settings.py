@@ -25,12 +25,7 @@ CONFIGURATION_FOLDERS = {
         "folder": os.path.join(CONFIGURATION_PATH, "documentation"),
         "example": os.path.join(EXAMPLES_PATH, "WI_unhealthyhostcount_AWS.wiki")
     },
-    "passwords": {
-        # Is a good practice to not save this directory in any version system, example git
-        "folder": os.path.join(CONFIGURATION_PATH, "passwords"),
-        "example": os.path.join(EXAMPLES_PATH, "passwords.yml")
-    },
-    "operations": {
+   "operations": {
         "folder": os.path.join(CONFIGURATION_PATH, "operations"),
         "example": os.path.join(EXAMPLES_PATH, "operations.yml")
     },
@@ -40,6 +35,10 @@ CONFIGURATION_FOLDERS = {
         "example": os.path.join(EXAMPLES_PATH, ".gitignore")
     }
 }
+
+# Is a good practice to not save this directory in any version system, example git
+CONFIGURATION_FILE_SECRETS = ""
+
 CONFIGURATION_HIDDEN_FOLDER_DEPLOYMENT = os.path.join(CONFIGURATION_PATH, '.deploy')
 CONFIGURATION_FILE_EXAMPLE = os.path.join(EXAMPLES_PATH, "bonfire.yml")
 CONFIGURATION_FILE_NAME = "bonfire.yml"

@@ -13,14 +13,14 @@ config:
   # Default value: ./alerts
   # alerts_dir: alerts
 
-  # Default: "passwords/passwords.yml"
-  # passwords_file: "passwords/passwords.yml"
+  # Default: "./passwords.yml"
+  passwords_file: "./passwords.yml"
 
-  # Default: documentation
-  # documentation_dir: "documentation"
+  # Default: ./documentation
+  # documentation_dir: "./documentation"
 
   # Default: operations
-  # operations_dir: "operations"
+  # operations_dir: "./operations"
 
   # Default value: False, values: True, False
   upload_documentation: False
@@ -28,6 +28,7 @@ config:
   # Documentation plugin
   documentation_plugin: Confluence
   # Configuration values for confluence plugin
+
   confluence:
     base_url: https://company.atlassian.net
     workspace: bonfire
@@ -37,6 +38,7 @@ config:
 
   # Operations plugin
   operations_plugin: Pagerduty
+
   # Configuration values for pagerduty plugin
   pagerduty:
     base_url: https://company.pagerduty.com

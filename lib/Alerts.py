@@ -43,6 +43,7 @@ class Alerts:
             SetupLogger.logger.fatal("Alerts directory is not valid, exiting ...")
             exit(1)
 
+        """
         # Check this **************
         # Validate if the value exist if don't use default
         if not config.get('passwords_file', False):
@@ -58,6 +59,8 @@ class Alerts:
         if not os.path.isfile(passwords_file_path):
             print("[error] Passwords file is not valid, exiting ...")
             exit(1)
+        """
+        passwords_file_path = ""
 
         # Check alerts file
         alerts_list_file = Utils.list_files_in_directory(alerts_dir)

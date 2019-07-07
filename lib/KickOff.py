@@ -91,13 +91,17 @@ class KickOff:
                                                         Settings.CONFIGURATION_PATH))
 
             except OSError as e:
-                print("[error] Creation of the directory {0} failed - error: {1}"
-                                         .format(val.get("folder"), e))
+                print("[error] Creation of the directory {0} failed - error: {1}".format(val.get("folder"), e))
                 exit(1)
         if error:
             return False
         else:
             return True
+
+    # Create secret configuration folders
+    def create_configuration_file_secret(self, overwrite=False):
+        pass
+
 
     # Create all started files
     def create_started_files(self, overwrite=False):

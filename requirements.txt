@@ -1,7 +1,8 @@
-# Dependencies for the framework
+# Dependencies for the framework and plugins
 docopt
 configparser
 PyYAML
 boto3
 botocore
 xlsxwriter
+jinja2

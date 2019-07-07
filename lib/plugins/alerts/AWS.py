@@ -21,7 +21,7 @@ import json
 _path_deployment_plugin = os.path.join(Settings.CONFIGURATION_HIDDEN_FOLDER_DEPLOYMENT, "AWS")
 
 # Plugin information, useful to know what it does
-plugin_description = "Plugin to process AWS cloudwatch and route53 alerts, check alerts.yml " \
+plugin_description = "Plugin to process AWS cloudwatch and route53 alerts, check alerts_example2.yml " \
                      "and passwords.yml example files for more information"
 
 
@@ -135,11 +135,10 @@ def check_sns_topic(topic_arn_list, category):
     return {'topics': topics, 'resources': topic_resources}
 
 
-# Create cloudformation template for each alert definition file
-def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_keys=None, dry_run=True):
-    print("[plugin: AWS] Creating cloudformation alerts template")
+# Create a cloudwatch alert
+def create_cloudwatch_alert(alert, _sns_topic_list, _category):
 
-    """    
+    """
     _aws_account = None
     _category = None
     _sub_category = None
@@ -148,7 +147,7 @@ def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_ke
     sns_topic = None
     _namespace = None
     _alarm_name = None
-    _alarm_description = None   
+    _alarm_description = None
     _threshold = None
     _evaluation_period = None
     _period = None
@@ -162,6 +161,203 @@ def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_ke
     """
     _action_enabled = True
     _comparison_operator = None
+
+    _namespace = alert['Namespace']
+    _sub_category = alert['Subcategory']
+    _environment = alert['Env']
+    _metric_name = alert['MetricName']
+    _alarm_description = alert['Desc']
+    _severity = alert['Severity']
+    _threshold = alert['Threshold']
+    _evaluation_period = alert['EvaluationPeriods']
+
+    _period = alert['Period']
+    _statistic = alert['Statistic']
+
+    # _ok_action = list(SNS_TOPICS_LIST['topics'])
+    _ok_action = list(_sns_topic_list['topics'])
+    _alarm_action = list(_sns_topic_list['topics'])
+    _dimensions = alert['Dimensions']
+    _insufficient_data = list(_sns_topic_list['topics'])
+
+    if str(alert['Comparator']) == '>':
+        _comparison_operator = 'GreaterThanThreshold'
+    elif str(alert['Comparator']) == '<':
+        _comparison_operator = 'LessThanThreshold'
+    elif str(alert['Comparator']) == '>=':
+        _comparison_operator = 'GreaterThanOrEqualToThreshold'
+    elif str(alert['Comparator']) == '<=':
+        _comparison_operator = 'LessThanOrEqualToThreshold'
+
+    _alarm_name = "-".join([_category, _sub_category, _environment,
+                            _metric_name, _comparison_operator, str(_threshold),
+                            str(_evaluation_period), _severity])
+
+    # Check if the variable TreatMissingData exist
+    try:
+        _treat_missing_data = alert['TreatMissingData']
+    # I should improve this ....
+    except Exception as e:
+        _treat_missing_data = 'missing'
+
+    _alarm_name_cloudformation = (_alarm_name
+                                  .replace('-', '')
+                                  .replace('_', '')
+                                  .replace('.', '')) + Utils.generate_random_word(4)
+
+    return _alarm_name, _alarm_name_cloudformation, {"Type": "AWS::CloudWatch::Alarm",
+                                                     "Properties": {"ActionsEnabled": _action_enabled,
+                                                                    "AlarmActions": _alarm_action,
+                                                                    "AlarmDescription": _alarm_description,
+                                                                    "AlarmName": _alarm_name,
+                                                                    "ComparisonOperator": _comparison_operator,
+                                                                    "Dimensions": _dimensions,
+                                                                    "EvaluationPeriods": _evaluation_period,
+                                                                    "Period": _period,
+                                                                    # ExtendedStatistic = 'String',
+                                                                    "InsufficientDataActions": _insufficient_data,
+                                                                    "MetricName": _metric_name,
+                                                                    "Namespace": _namespace,
+                                                                    "OKActions": _ok_action,
+                                                                    "Statistic": _statistic,
+                                                                    "Threshold": _threshold,
+                                                                    "TreatMissingData": _treat_missing_data
+                                                                    }
+                                                     }
+
+
+# Create a route53 health check and cloudwatch alert
+def create_route53_alert(alert, _sns_topic_list, _category):
+    _action_enabled = True
+    _comparison_operator = None
+
+    _namespace = "AWS/Route53"
+    _sub_category = alert['Subcategory']
+    _environment = alert['Env']
+    _metric_name = alert['MetricName']
+    _alarm_description = alert['Desc']
+    _severity = alert['Severity']
+
+    # Healthcheck information
+    _child_health_checks = alert.get('ChildHealthChecks', None)
+    _enable_sni = alert.get('EnableSNI', True)
+    _failure_threshold = alert['FailureThreshold']
+    _fully_qualified_domain_name = alert['FullyQualifiedDomainName']
+    _health_threshold = alert.get('HealthThreshold', None)
+
+    _insufficient_data_health_status = alert.get('InsufficientDataHealthStatus', 'Unhealthy')
+    _inverted = alert.get('Inverted', False)
+
+    _ip_address = alert['IPAddress']
+    _measure_latency = alert.get('MeasureLatency', False)
+    _port = alert['Port']
+    _regions = alert.get('Regions', list('us-east-1', 'us-west-1', 'us-west-2'))
+    _type = alert['Type']
+    _request_interval = alert['RequestInterval']
+    _request_path = alert.get(['ResourcePath'], '/')
+    _search_string = alert.get(['SearchString', ''])
+
+    _tags = alert['Tags']
+    # Cloudwatch alarm information
+
+    _threshold = alert['Threshold']
+    _evaluation_period = alert['EvaluationPeriods']
+    _period = alert['Period']
+    _statistic = alert['Statistic']
+
+    _ok_action = list(_sns_topic_list['topics'])
+    _alarm_action = list(_sns_topic_list['topics'])
+    _insufficient_data = list(_sns_topic_list['topics'])
+
+    if str(alert['Comparator']) == '>':
+        _comparison_operator = 'GreaterThanThreshold'
+    elif str(alert['Comparator']) == '<':
+        _comparison_operator = 'LessThanThreshold'
+    elif str(alert['Comparator']) == '>=':
+        _comparison_operator = 'GreaterThanOrEqualToThreshold'
+    elif str(alert['Comparator']) == '<=':
+        _comparison_operator = 'LessThanOrEqualToThreshold'
+
+    cloudwatch_alarm_name = "-".join([_category, _sub_category, _environment,
+                                      _metric_name, _comparison_operator, str(_threshold),
+                                      str(_evaluation_period), _severity])
+
+    route53_alarm_name = "-".join([_category, _sub_category, _environment, _metric_name])
+
+    # Check if the variable TreatMissingData exist
+    try:
+        _treat_missing_data = alert['TreatMissingData']
+    # I should improve this ....
+    except Exception as e:
+        _treat_missing_data = 'missing'
+
+    cloudwatch_alarm_name_cloudformation = (cloudwatch_alarm_name
+                                            .replace('-', '')
+                                            .replace('_', '')
+                                            .replace('.', '')) + Utils.generate_random_word(4)
+
+    route53_alarm_name_cloudformation = (route53_alarm_name
+                                         .replace('-', '')
+                                         .replace('_', '')
+                                         .replace('.', '')) + Utils.generate_random_word(4)
+
+    # First create healthcheck configuration
+
+    resources = {route53_alarm_name_cloudformation: {
+        "Type": "AWS::Route53::HealthCheck",
+        "Properties": {
+            "HealthCheckConfig": {
+                "AlarmIdentifier": route53_alarm_name,
+                # "ChildHealthChecks": "", # No support!!!
+                # "HealthThreshold": _health_threshold, # Not Support!!!
+                "EnableSNI": _enable_sni,
+                "FailureThreshold": _failure_threshold,
+                "FullyQualifiedDomainName": _fully_qualified_domain_name,
+                "InsufficientDataHealthStatus": _insufficient_data_health_status,
+                "Inverted": _inverted,
+                "IPAddress": _ip_address,
+                "MeasureLatency": _measure_latency,
+                "Port": _port,
+                "Regions": _regions,
+                "RequestInterval": _request_interval,
+                "ResourcePath": _request_path,
+                "SearchString": _search_string,
+                "Type": _type,
+            },
+            "HealthCheckTags": _tags
+        }
+    }, cloudwatch_alarm_name_cloudformation: {
+        "Type": "AWS::CloudWatch::Alarm",
+        "Properties": {
+            "AlarmName": cloudwatch_alarm_name,
+            "ActionsEnabled": _action_enabled,
+            "AlarmActions": _alarm_action,
+            "AlarmDescription": _alarm_description,
+            "ComparisonOperator": _comparison_operator,
+            "EvaluationPeriods": _evaluation_period,
+            "Period": _period,
+            "InsufficientDataActions": _insufficient_data,
+            "MetricName": _metric_name,
+            "Namespace": _namespace,
+            "OKActions": _ok_action,
+            "Statistic": _statistic,
+            "Threshold": _threshold,
+            "TreatMissingData": _treat_missing_data,
+            "Dimensions": {
+                "Name": "HealthCheckId",
+                "Value": {"Ref": route53_alarm_name_cloudformation}
+            }
+        }
+    }}
+
+    # Create cloudformation template for each alert definition file
+
+    print resources
+    exit(1)
+
+
+def create_cloudformation_template_alerts(alert_yml_data=None):
+    print("[plugin: AWS] Creating cloudformation alerts template")
 
     # Create Header for the YML
     stack = dict(
@@ -196,113 +392,89 @@ def create_and_deploy_cloudformation_template_alerts(alert_yml_data=None, aws_ke
                     for key, val in sns_resource.items():
                         stack['Resources'][key] = val
 
-                # Loop for each cloudwatch alert definition
-                for name, alert in alert_yml_data[_category][_monitoring_system]['Cloudwatch'].items():
-                    _namespace = alert['Namespace']
-                    _sub_category = alert['Subcategory']
-                    _environment = alert['Env']
-                    _metric_name = alert['MetricName']
-                    _alarm_description = alert['Desc']
-                    _severity = alert['Severity']
-                    _threshold = alert['Threshold']
-                    _evaluation_period = alert['EvaluationPeriods']
+                # Create cloudwatch alert
+                try:
 
-                    _period = alert['Period']
-                    _statistic = alert['Statistic']
+                    # Loop for each cloudwatch alert definition
+                    for name, alert in alert_yml_data[_category][_monitoring_system]['Cloudwatch'].items():
+                        try:
+                            _alarm_name, _alarm_name_cloudformation, alarm_definition = \
+                                create_cloudwatch_alert(alert, _sns_topic_list, _category)
+                            stack['Resources'][_alarm_name_cloudformation] = alarm_definition
+                            SetupLogger.logger.debug(('Cloudwatch alarm {} added to Cloudformation Template.'
+                                                      .format(_alarm_name)))
+                        except Exception as e:
+                            print("[plugin: AWS] Cloudwatch alert creation error: {} in category: {}"
+                                  .format(e, _category))
 
-                    # _ok_action = list(SNS_TOPICS_LIST['topics'])
-                    _ok_action = list(_sns_topic_list['topics'])
-                    _alarm_action = list(_sns_topic_list['topics'])
-                    _dimensions = alert['Dimensions']
-                    _insufficient_data = list(_sns_topic_list['topics'])
+                except Exception as e:
+                    SetupLogger.logger.warn("[plugin: AWS] Cloudwatch definition not found in the category: {}"
+                                            .format(_category))
 
-                    if str(alert['Comparator']) == '>':
-                        _comparison_operator = 'GreaterThanThreshold'
-                    elif str(alert['Comparator']) == '<':
-                        _comparison_operator = 'LessThanThreshold'
-                    elif str(alert['Comparator']) == '>=':
-                        _comparison_operator = 'GreaterThanOrEqualToThreshold'
-                    elif str(alert['Comparator']) == '<=':
-                        _comparison_operator = 'LessThanOrEqualToThreshold'
+                # Create route53 healthcheck and cloudwatch alert
+                try:
 
-                    _alarm_name = "_".join([_category, _sub_category, _environment,
-                                            _metric_name, _comparison_operator, str(_threshold),
-                                            str(_evaluation_period), _severity])
+                    # Loop for each route53 alert definition
+                    for name, alert in alert_yml_data[_category][_monitoring_system]['Route53'].items():
+                        try:
+                            # _alarm_name, _alarm_name_cloudformation, alarm_definition = \
+                            #    create_cloudwatch_alert(alert, _sns_topic_list, _category, _action_enabled)
+                            # stack['Resources'][_alarm_name_cloudformation] =alarm_definition
 
-                    # Check if the variable TreatMissingData exist
-                    try:
-                        _treat_missing_data = alert['TreatMissingData']
-                    # I should improve this ....
-                    except Exception as e:
-                        _treat_missing_data = 'missing'
+                            create_route53_alert(alert, _sns_topic_list, _category)
 
-                    _alarm_name_cloudformation = (_alarm_name
-                                                  .replace('-', '')
-                                                  .replace('_', '')
-                                                  .replace('.', '')) + Utils.generate_random_word(4)
-
-                    stack['Resources'][_alarm_name_cloudformation] = \
-                        {"Type": "AWS::CloudWatch::Alarm",
-                         "Properties": {"ActionsEnabled": _action_enabled,
-                                        "AlarmActions": _alarm_action,
-                                        "AlarmDescription": _alarm_description,
-                                        "AlarmName": _alarm_name,
-                                        "ComparisonOperator": _comparison_operator,
-                                        "Dimensions": _dimensions,
-                                        "EvaluationPeriods": _evaluation_period,
-                                        "Period": _period,
-                                        # ExtendedStatistic = 'String',
-                                        "InsufficientDataActions": _insufficient_data,
-                                        "MetricName": _metric_name,
-                                        "Namespace": _namespace,
-                                        "OKActions": _ok_action,
-                                        "Statistic": _statistic,
-                                        "Threshold": _threshold,
-                                        "TreatMissingData": _treat_missing_data
-                                        }
-                         }
-                    SetupLogger.logger.debug(('Alarm {} added to Cloudformation Template.'
-                                              .format(_alarm_name)))
+                            SetupLogger.logger.debug(('Route53 healthcheck {} and Cloudwatch alarm {} added to '
+                                                      'Cloudformation Template.'.format(_alarm_name, "")))
+                        except Exception as e:
+                            print("[plugin: AWS] Route53 alert creation error: {} in category {}"
+                                  .format(e, _category))
+                except Exception as e:
+                    SetupLogger.logger.warn("[plugin: AWS] Route53 definition not found in the category: {}"
+                                            .format(_category))
 
                 # Write template to file
                 stack_name = "{0}-{1}-alerts-stack".format(_account, category)
-                stack_file_path = os.path.join(_path_deployment_plugin, stack_name+".yml")
+                stack_file_path = os.path.join(_path_deployment_plugin, stack_name + ".yml")
                 print("[plugin: AWS] '{0}' stack created in directory '{1}'".format(stack_name, stack_file_path))
                 write_cloudformation_template_to_file(stack, stack_file_path)
 
-                # Deploy template
-                if not dry_run:
-                    # Check if the account exist
-                    account_exists = False
-                    SetupLogger.logger.debug("Checking if account {} exists in password file".format(_account))
-                    for key, val in aws_keys.items():
-                        if key.lower() == _account.lower():
-                            SetupLogger.logger.debug("Account {} exists".format(_account))
-                            account_exists = True
-                            break
 
-                    if account_exists:
-                        if check_cloudformation_stack(stack_name=stack_name,
-                                                      aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
-                                                      aws_secret_access_key=aws_keys[_account]
-                                                      ["aws_secret_access_key"],
-                                                      region=aws_keys[_account]["region"]):
-                            update_cloudformation_stack(cloudformation_path=stack_file_path,
-                                                        stack_name=stack_name,
-                                                        bucket_name=None,
-                                                        aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
-                                                        aws_secret_access_key=aws_keys[_account]
-                                                        ["aws_secret_access_key"],
-                                                        region=aws_keys[_account]["region"])
-                        else:
-                            create_cloudformation_stack(cloudformation_path=stack_file_path,
-                                                        stack_name=stack_name,
-                                                        aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
-                                                        aws_secret_access_key=aws_keys[_account]
-                                                        ["aws_secret_access_key"],
-                                                        region=aws_keys[_account]["region"])
-                    else:
-                        print("[plugin: AWS] Account {} does not exist".format(_account))
+def deploy_cloudformation_template_alerts(alert_yml_data=None, dry_run=True):
+    # Deploy template
+    if not dry_run:
+        # Check if the account exist
+        account_exists = False
+        """
+        SetupLogger.logger.debug("Checking if account {} exists in password file".format(_account))
+        for key, val in aws_keys.items():
+            if key.lower() == _account.lower():
+                SetupLogger.logger.debug("Account {} exists".format(_account))
+                account_exists = True
+                break
+
+        if account_exists:
+            if check_cloudformation_stack(stack_name=stack_name,
+                                          aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
+                                          aws_secret_access_key=aws_keys[_account]
+                                          ["aws_secret_access_key"],
+                                          region=aws_keys[_account]["region"]):
+                update_cloudformation_stack(cloudformation_path=stack_file_path,
+                                            stack_name=stack_name,
+                                            bucket_name=None,
+                                            aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
+                                            aws_secret_access_key=aws_keys[_account]
+                                            ["aws_secret_access_key"],
+                                            region=aws_keys[_account]["region"])
+            else:
+                create_cloudformation_stack(cloudformation_path=stack_file_path,
+                                            stack_name=stack_name,
+                                            aws_access_key_id=aws_keys[_account]["aws_access_key_id"],
+                                            aws_secret_access_key=aws_keys[_account]
+                                            ["aws_secret_access_key"],
+                                            region=aws_keys[_account]["region"])
+        else:
+            print("[plugin: AWS] Account {} does not exist".format(_account))
+        """
 
 
 # Create cloudformation template for the alert dashboard
@@ -510,14 +682,16 @@ def deploy(list_alerts_file, passwords, dry_run):
     # write_cloudformation_template_to_file(buckets3_template,
     #                                   os.path.join(_path_deployment_plugin, "bonfire_init_buckets3.yml"))
 
-    aws_keys = get_aws_keys(passwords)["AWS"]
+    # aws_keys = get_aws_keys(passwords)["AWS"]
 
-    # Deploy template and wait until is finish
+    # Create cloudformation templates
     for alert_file in list_alerts_file:
         alert_file_parsed = Utils.read_yml_file(alert_file)
-        create_and_deploy_cloudformation_template_alerts(alert_yml_data=alert_file_parsed,
-                                                         aws_keys=aws_keys,
-                                                         dry_run=dry_run)
+        create_cloudformation_template_alerts(alert_yml_data=alert_file_parsed)
+
+    # Deploy cloudformation templates
+    if dry_run:
+        deploy_cloudformation_template_alerts(alert_yml_data=None, dry_run=True)
 
 
 # Remove function, remove stacks deployed
