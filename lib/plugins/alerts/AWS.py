@@ -251,11 +251,13 @@ def create_route53_alert(alert, _sns_topic_list, _category):
     _ip_address = alert['IPAddress']
     _measure_latency = alert.get('MeasureLatency', False)
     _port = alert['Port']
-    _regions = alert.get('Regions', list('us-east-1', 'us-west-1', 'us-west-2'))
+    # Default list of regions
+    _default_list_regions = ['us-east-1', 'us-west-1', 'us-west-2']
+    _regions = alert.get('Regions', _default_list_regions)
     _type = alert['Type']
     _request_interval = alert['RequestInterval']
-    _request_path = alert.get(['ResourcePath'], '/')
-    _search_string = alert.get(['SearchString', ''])
+    _request_path = alert.get('ResourcePath', '/')
+    _search_string = alert.get('SearchString', '')
 
     _tags = alert['Tags']
     # Cloudwatch alarm information
@@ -303,7 +305,7 @@ def create_route53_alert(alert, _sns_topic_list, _category):
 
     # First create healthcheck configuration
 
-    resources = {route53_alarm_name_cloudformation: {
+    route53_alarm_resource = {
         "Type": "AWS::Route53::HealthCheck",
         "Properties": {
             "HealthCheckConfig": {
@@ -326,7 +328,8 @@ def create_route53_alert(alert, _sns_topic_list, _category):
             },
             "HealthCheckTags": _tags
         }
-    }, cloudwatch_alarm_name_cloudformation: {
+    }
+    cloudwatch_alarm_resource = {
         "Type": "AWS::CloudWatch::Alarm",
         "Properties": {
             "AlarmName": cloudwatch_alarm_name,
@@ -348,12 +351,17 @@ def create_route53_alert(alert, _sns_topic_list, _category):
                 "Value": {"Ref": route53_alarm_name_cloudformation}
             }
         }
-    }}
+    }
 
     # Create cloudformation template for each alert definition file
+    return {'cloudwatch_alarm_name': cloudwatch_alarm_name,
+            'route53_alarm_name': route53_alarm_name,
+            'cloudwatch_alarm_name_cloudformation': cloudwatch_alarm_name_cloudformation,
+            'route53_alarm_name_cloudformation': route53_alarm_name_cloudformation,
+            'cloudwatch_alarm_resource': cloudwatch_alarm_resource,
+            'route53_alarm_resource': route53_alarm_resource
+            }
 
-    print resources
-    exit(1)
 
 
 def create_cloudformation_template_alerts(alert_yml_data=None):
@@ -417,21 +425,23 @@ def create_cloudformation_template_alerts(alert_yml_data=None):
                     # Loop for each route53 alert definition
                     for name, alert in alert_yml_data[_category][_monitoring_system]['Route53'].items():
                         try:
-                            # _alarm_name, _alarm_name_cloudformation, alarm_definition = \
-                            #    create_cloudwatch_alert(alert, _sns_topic_list, _category, _action_enabled)
-                            # stack['Resources'][_alarm_name_cloudformation] =alarm_definition
+                            alert_resource = create_route53_alert(alert, _sns_topic_list, _category)
 
-                            create_route53_alert(alert, _sns_topic_list, _category)
+                            stack['Resources'][alert_resource['cloudwatch_alarm_name_cloudformation']] \
+                                = alert_resource['cloudwatch_alarm_resource']
+                            stack['Resources'][alert_resource['route53_alarm_name_cloudformation']] \
+                                = alert_resource['route53_alarm_resource']
 
                             SetupLogger.logger.debug(('Route53 healthcheck {} and Cloudwatch alarm {} added to '
-                                                      'Cloudformation Template.'.format(_alarm_name, "")))
+                                                      'Cloudformation Template.'
+                                                      .format(alert_resource['cloudwatch_alarm_name'],
+                                                              alert_resource['route53_alarm_name'])))
                         except Exception as e:
                             print("[plugin: AWS] Route53 alert creation error: {} in category {}"
                                   .format(e, _category))
                 except Exception as e:
                     SetupLogger.logger.warn("[plugin: AWS] Route53 definition not found in the category: {}"
                                             .format(_category))
-
                 # Write template to file
                 stack_name = "{0}-{1}-alerts-stack".format(_account, category)
                 stack_file_path = os.path.join(_path_deployment_plugin, stack_name + ".yml")
